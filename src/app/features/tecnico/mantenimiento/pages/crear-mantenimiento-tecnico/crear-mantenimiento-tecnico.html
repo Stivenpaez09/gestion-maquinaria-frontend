@@ -1,0 +1,270 @@
+<body class="bg-[#0f172a] text-gray-200 min-h-screen flex">
+  <app-sidebar-tecnico></app-sidebar-tecnico>
+
+  <!-- =========================
+       MAIN AREA
+  ========================== -->
+  <main class="flex-1 flex flex-col">
+    <!-- =========================
+         HEADER SUPERIOR
+    ========================== -->
+    <header
+      class="h-16 bg-[#1e293b] flex items-center justify-between px-6 border-b py-11 border-gray-800"
+    >
+      <div>
+        <h1 class="text-xl font-bold">Agregar Mantenimiento</h1>
+        <span class="text-sm text-gray-400">Registrar nuevo mantenimiento en el sistema</span>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <button
+          routerLink="/ver-mantenimientos-tecnico"
+          class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg"
+        >
+          Volver a lista
+        </button>
+      </div>
+    </header>
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+    ========================== -->
+    <section class="p-6 space-y-8">
+      <div class="max-w-4xl mx-auto grid grid-cols-1 gap-6">
+        <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 space-y-4">
+          <h3 class="text-lg font-semibold text-white">Datos del Mantenimiento</h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm text-gray-300 mb-2"
+                >Máquina <span class="text-red-500">*</span></label
+              >
+              <select
+                [(ngModel)]="form.maquina"
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+              >
+                <option [ngValue]="undefined">-- Seleccione máquina --</option>
+                @for (m of maquinas; track m.id_maquina) {
+                <option [ngValue]="m.id_maquina">
+                  {{ m.nombre_maquina }} — {{ m.marca || '-' }}
+                </option>
+                }
+              </select>
+              @if (errores['maquina']) {
+              <p class="text-red-500 text-xs mt-1">{{ errores['maquina'] }}</p>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm text-gray-300 mb-2"
+                >Mantenimiento Programado (opcional)</label
+              >
+              <select
+                [(ngModel)]="form.programado"
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+              >
+                <option [ngValue]="null">-- Ninguno --</option>
+                @for (p of programados; track p.id_programado) {
+                <option [ngValue]="p.id_programado">
+                  Maquina {{ p.maquina }} - {{ p.nombre }} — ({{ p.intervalo_horas }} h)
+                </option>
+                }
+              </select>
+              @if (errores['programado']) {
+              <p class="text-red-500 text-xs mt-1">{{ errores['programado'] }}</p>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm text-gray-300 mb-2">Responsable (usuario)</label>
+              <select
+                [(ngModel)]="form.usuario"
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+              >
+                <option [ngValue]="null">-- Ninguno --</option>
+                @for (u of usuarios; track u.id_usuario) {
+                <option [ngValue]="u.id_usuario">{{ u.nombre }} — {{ u.email }}</option>
+                }
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm text-gray-300 mb-2"
+                >Tipo de mantenimiento <span class="text-red-500">*</span></label
+              >
+              <select
+                [(ngModel)]="form.tipo_mantenimiento"
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+              >
+                <option value="preventivo">Preventivo</option>
+                <option value="correctivo">Correctivo</option>
+                <option value="predictivo">Predictivo</option>
+              </select>
+              @if (errores['tipo_mantenimiento']) {
+              <p class="text-red-500 text-xs mt-1">{{ errores['tipo_mantenimiento'] }}</p>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm text-gray-300 mb-2"
+                >Fecha de mantenimiento <span class="text-red-500">*</span></label
+              >
+              <input
+                type="date"
+                [(ngModel)]="form.fecha_mantenimiento"
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+              />
+              @if (errores['fecha_mantenimiento']) {
+              <p class="text-red-500 text-xs mt-1">{{ errores['fecha_mantenimiento'] }}</p>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm text-gray-300 mb-2"
+                >Horas realizadas <span class="text-red-500">*</span></label
+              >
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                [(ngModel)]="form.horas_realizadas"
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+              />
+              @if (errores['horas_realizadas']) {
+              <p class="text-red-500 text-xs mt-1">{{ errores['horas_realizadas'] }}</p>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm text-gray-300 mb-2"
+                >Costo <span class="text-red-500">*</span></label
+              >
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                [(ngModel)]="form.costo"
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+              />
+              @if (errores['costo']) {
+              <p class="text-red-500 text-xs mt-1">{{ errores['costo'] }}</p>
+              }
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="block text-sm text-gray-300 mb-2"
+                >Descripción <span class="text-red-500">*</span></label
+              >
+              <textarea
+                rows="4"
+                [(ngModel)]="form.descripcion"
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white resize-none"
+              ></textarea>
+              @if (errores['descripcion']) {
+              <p class="text-red-500 text-xs mt-1">{{ errores['descripcion'] }}</p>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Foto -->
+        <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 space-y-4">
+          <h3 class="text-lg font-semibold text-white">Foto (opcional)</h3>
+
+          <div
+            class="relative h-48 bg-gradient-to-br from-[#0b1220] to-[#111827] rounded-lg flex items-center justify-center overflow-hidden border-2 border-dashed border-gray-600"
+          >
+            @if (fotoPreview) {
+            <img [src]="fotoPreview" alt="Preview" class="w-full h-full object-cover" />
+            } @else {
+            <div class="text-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                class="mx-auto text-gray-500 mb-2"
+              >
+                <path
+                  d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+                ></path>
+                <circle cx="12" cy="13" r="4"></circle>
+              </svg>
+              <p class="text-gray-400 text-sm">Sin foto</p>
+            </div>
+            }
+          </div>
+
+          <input
+            type="file"
+            #fotoInput
+            accept="image/jpeg,image/png,image/webp"
+            class="hidden"
+            (change)="onFotoSeleccionada($event)"
+          />
+          <div class="flex gap-2">
+            <button
+              (click)="fotoInput.click()"
+              class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg"
+            >
+              Subir Foto
+            </button>
+            @if (fotoPreview) {
+            <button
+              (click)="limpiarFoto()"
+              class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg"
+            >
+              Limpiar
+            </button>
+            }
+          </div>
+          @if (fotoNombre) {
+          <p class="text-xs text-gray-400">Archivo: {{ fotoNombre }}</p>
+          }
+          <p class="text-xs text-gray-500">Formatos: JPG, PNG, WEBP. Máx: 5MB</p>
+        </div>
+
+        <!-- Acciones -->
+        <div class="flex gap-4">
+          <button
+            (click)="cancelar()"
+            class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 rounded-lg"
+          >
+            Cancelar
+          </button>
+          <button
+            (click)="crearMantenimiento()"
+            [disabled]="creando"
+            class="flex-1 bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-3 disabled:opacity-60"
+          >
+            @if (creando) {
+            <svg
+              class="animate-spin h-5 w-5"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              ></path>
+            </svg>
+            Creando... } @else { Crear Mantenimiento }
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>

@@ -32,7 +32,6 @@ export interface TokenDecoded {
 
 export enum LoginRol {
   ADMIN = 'ADMIN',
-  ASISTENTE = 'ASISTENTE',
   RESPONSABLE = 'RESPONSABLE_DE_MANTENIMIENTO',
   TECNICO = 'TECNICO_DE_MANTENIMIENTO',
   OPERADOR = 'OPERADOR',

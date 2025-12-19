@@ -1,0 +1,283 @@
+<body class="bg-[#0f172a] text-gray-200 min-h-screen flex">
+  <!-- SIDEBAR (igual al anterior, completo) -->
+  <app-sidebar-admin></app-sidebar-admin>
+
+  <main class="flex-1 flex flex-col overflow-hidden">
+    <!-- HEADER -->
+    <header
+      class="h-16 bg-[#1e293b] flex items-center justify-between px-6 border-b py-11 border-gray-800"
+    >
+      <div>
+        <h1 class="text-xl font-bold">Detalles de login</h1>
+        <span class="text-sm text-gray-400">Información y gestión completa</span>
+      </div>
+      @if (login && !modoEdicion) {
+      <button
+        (click)="activarEdicion()"
+        [disabled]="cargando"
+        class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 text-base"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          fill="#ffffff"
+          viewBox="0 0 256 256"
+          class="inline-block mr-2"
+        >
+          <path
+            d="M230.15,70.54,185.46,25.86a20,20,0,0,0-28.28,0L33.86,149.17A19.86,19.86,0,0,0,28,163.31V208a20,20,0,0,0,20,20H216a12,12,0,0,0,0-24H125L230.15,98.83A20,20,0,0,0,230.15,70.54ZM91,204H52V165l84-84,39,39ZM192,103,153,64l18.34-18.34,39,39Z"
+          ></path>
+        </svg>
+        Editar
+      </button>
+      }
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <section class="flex-1 overflow-y-auto p-6 space-y-8">
+      <div class="max-w-3xl mx-auto w-full min-w-0">
+        <div
+          class="bg-[#1e293b] border border-gray-700 rounded-2xl p-6 space-y-6 min-w-0 overflow-x-hidden"
+        >
+          <!-- Loading / not found -->
+          <div *ngIf="cargando" class="flex items-center justify-center h-40 text-gray-400">
+            Cargando...
+          </div>
+          <div *ngIf="!cargando && !login" class="text-gray-400">Login no encontrado.</div>
+
+          <!-- DETAIL VIEW -->
+          <div *ngIf="login && !modoEdicion" class="space-y-4 min-w-0">
+            <div>
+              <h2 class="text-2xl font-bold text-white truncate">{{ login.username }}</h2>
+              <p class="text-sm text-gray-400">ID: {{ login.id_login }}</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <p class="text-xs text-gray-400 uppercase">Rol</p>
+                <p class="text-white font-medium">{{ login.rol }}</p>
+              </div>
+
+              <div>
+                <p class="text-xs text-gray-400 uppercase">Activo</p>
+                <p class="text-white font-medium">{{ login.is_active ? 'Sí' : 'No' }}</p>
+              </div>
+            </div>
+
+            <div>
+              <p class="text-xs text-gray-400 uppercase mb-2">Usuario asociado</p>
+
+              <button
+                class="w-full text-left bg-[#0b1220] hover:bg-[#0f172a] rounded-lg p-4 border border-gray-700 flex items-center justify-between gap-4 min-w-0"
+                (click)="verDetalleUsuario()"
+              >
+                <div class="min-w-0">
+                  <p class="text-xs text-gray-400">ID: {{ login.usuario }}</p>
+                  <p class="text-white font-semibold truncate">{{ usuario?.nombre || '—' }}</p>
+                  <p *ngIf="usuario?.cargo" class="text-sm text-gray-400 truncate">
+                    {{ usuario?.cargo }}
+                  </p>
+                </div>
+                <div class="text-sm text-gray-400 shrink-0">Ver</div>
+              </button>
+            </div>
+
+            <div class="border-t border-gray-700 pt-4 flex gap-4">
+              <button
+                (click)="eliminarLogin()"
+                class="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg flex items-center justify-center gap-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path
+                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                  ></path>
+                </svg>
+                Eliminar Login
+              </button>
+
+              <button
+                (click)="volver()"
+                class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg"
+              >
+                Volver
+              </button>
+            </div>
+
+            <div class="text-xs text-gray-400">
+              <p *ngIf="login.created_at">
+                Creado: {{ login.created_at | date : 'dd/MM/yyyy HH:mm' }}
+              </p>
+              <p *ngIf="login.updated_at">
+                Actualizado: {{ login.updated_at | date : 'dd/MM/yyyy HH:mm' }}
+              </p>
+            </div>
+          </div>
+
+          <!-- EDIT FORM -->
+          <form
+            *ngIf="login && modoEdicion"
+            (ngSubmit)="guardarCambios()"
+            class="space-y-4 w-full max-w-full min-w-0 overflow-x-hidden"
+          >
+            <div>
+              <label class="block text-sm text-gray-300 mb-1">ID</label>
+              <input
+                type="text"
+                [value]="login.id_login"
+                disabled
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-gray-300"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm text-gray-300 mb-1">Usuario (ID)</label>
+              <input
+                type="text"
+                [value]="login.usuario"
+                disabled
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-gray-300"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm text-gray-300 mb-1"
+                >Nombre de usuario <span class="text-red-500">*</span></label
+              >
+              <input
+                name="username"
+                [(ngModel)]="form.username"
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white max-w-full min-w-0"
+              />
+              <p *ngIf="errores['username']" class="text-red-500 text-xs mt-1">
+                {{ errores['username'] }}
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm text-gray-300 mb-1"
+                  >Rol <span class="text-red-500">*</span></label
+                >
+                <select
+                  name="rol"
+                  [(ngModel)]="form.rol"
+                  class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+                >
+                  <option value="ADMIN">ADMIN</option>
+                  <option value="RESPONSABLE_DE_MANTENIMIENTO">RESPONSABLE_DE_MANTENIMIENTO</option>
+                  <option value="OPERADOR">OPERADOR</option>
+                  <option value="TECNICO_DE_MANTENIMIENTO">TECNICO_DE_MANTENIMIENTO</option>
+                </select>
+                <p *ngIf="errores['rol']" class="text-red-500 text-xs mt-1">{{ errores['rol'] }}</p>
+              </div>
+
+              <div class="flex items-center gap-4">
+                <label class="inline-flex items-center text-sm text-gray-300">
+                  <input
+                    type="checkbox"
+                    name="is_active"
+                    [(ngModel)]="form.is_active"
+                    class="h-4 w-4"
+                  />
+                  <span class="ml-2">Activo</span>
+                </label>
+                <p *ngIf="errores['is_active']" class="text-red-500 text-xs mt-1">
+                  {{ errores['is_active'] }}
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm text-gray-300 mb-1">Contraseña (nueva)</label>
+              <div class="relative">
+                <input
+                  name="password"
+                  [(ngModel)]="form.password"
+                  [type]="showPassword ? 'text' : 'password'"
+                  class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 pr-10 text-white max-w-full min-w-0"
+                  placeholder="Dejar vacío para no cambiar"
+                />
+                <button
+                  type="button"
+                  (click)="togglePasswordVisibility()"
+                  class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
+                >
+                  <svg
+                    *ngIf="!showPassword"
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    />
+                  </svg>
+                  <svg
+                    *ngIf="showPassword"
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-5 h-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.956 9.956 0 012.223-3.675M6.1 6.1A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.956 9.956 0 01-1.36 2.657M3 3l18 18"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <p *ngIf="errores['password']" class="text-red-500 text-xs mt-1">
+                {{ errores['password'] }}
+              </p>
+              <p class="text-xs text-gray-400 mt-1">
+                Escriba una nueva contraseña si desea cambiarla.
+              </p>
+            </div>
+
+            <div class="flex gap-4 mt-4">
+              <button
+                type="button"
+                (click)="cancelarEdicion()"
+                class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                [disabled]="guardando"
+                class="flex-1 bg-[#f97316] hover:bg-[#ea580c] text-white py-3 rounded-lg"
+              >
+                {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>

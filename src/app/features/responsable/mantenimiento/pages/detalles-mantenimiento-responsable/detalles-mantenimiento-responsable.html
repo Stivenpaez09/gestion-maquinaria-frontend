@@ -1,0 +1,151 @@
+<body class="bg-[#0f172a] text-gray-200 min-h-screen flex w-full overflow-x-hidden">
+  <app-sidebar-responsable></app-sidebar-responsable>
+
+  <main class="flex-1 min-w-0 flex flex-col overflow-y-auto overflow-x-hidden box-border">
+    <!-- HEADER -->
+    <header
+      class="h-16 bg-[#1e293b] flex items-center justify-between px-6 border-b border-gray-800 w-full box-border"
+    >
+      <div>
+        <h1 class="text-xl font-bold">Detalles de Mantenimiento</h1>
+        <span class="text-sm text-gray-400">Gestionar mantenimiento en el sistema</span>
+      </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <section class="p-6 w-full box-border overflow-x-hidden flex flex-1">
+      <div *ngIf="cargando" class="flex items-center justify-center w-full h-64">
+        <svg
+          class="animate-spin w-12 h-12 text-[#f97316]"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+          ></path>
+        </svg>
+      </div>
+
+      <div
+        *ngIf="!cargando && mantenimiento"
+        class="max-w-6xl w-full mx-auto min-w-0 flex justify-center items-center"
+      >
+        <div
+          class="bg-[#1e293b] border border-gray-700 rounded-2xl p-6 shadow-lg min-w-0 overflow-x-hidden"
+        >
+          <!-- VIEW: información del mantenimiento (oculto cuando modoEdicion=true) -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start min-w-0">
+            <!-- FOTO -->
+            <div class="md:col-span-1 min-w-0">
+              <div class="rounded-lg overflow-hidden border border-gray-700 bg-[#0b1220] h-full">
+                <div class="h-64 md:h-full w-full">
+                  <img
+                    [src]="obtenerFotoUrl(mantenimiento.foto)"
+                    alt="foto"
+                    class="w-full h-full object-cover block max-w-full"
+                    onError="this.src='/assets/images/mantenimiento-default.jpg'"
+                  />
+                </div>
+                <div class="p-4">
+                  <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Estado Actual</p>
+                  <span
+                    class="inline-block bg-[#0b1220] text-[#93c5fd] px-3 py-1 rounded-full text-sm font-semibold"
+                    >OPERATIVA</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- INFORMACIÓN PRINCIPAL -->
+            <div class="md:col-span-2 flex flex-col gap-4 min-w-0">
+              <div class="flex items-start justify-between">
+                <div class="min-w-0">
+                  <h2 class="text-2xl font-bold text-white">
+                    {{ mantenimiento.tipo_mantenimiento | titlecase }} — ID #{{
+                      mantenimiento.id_mantenimiento
+                    }}
+                  </h2>
+                  <p class="text-sm text-gray-400 mt-1">
+                    Máquina:
+                    <span class="font-semibold text-gray-200">{{
+                      maquinaObj?.nombre_maquina || 'ID ' + mantenimiento.maquina
+                    }}</span>
+                  </p>
+                  <p class="text-sm text-gray-400 mt-1">
+                    Responsable:
+                    <span class="font-semibold text-gray-200">{{
+                      usuarioObj?.nombre ||
+                        (mantenimiento.usuario ? 'ID ' + mantenimiento.usuario : 'N/A')
+                    }}</span>
+                  </p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 min-w-0">
+                <div class="bg-[#111827] p-4 rounded-lg border border-gray-700 min-w-0">
+                  <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Fecha</p>
+                  <p class="text-white font-semibold">
+                    {{ mantenimiento.fecha_mantenimiento | date : 'dd/MM/yyyy' }}
+                  </p>
+                </div>
+
+                <div class="bg-[#111827] p-4 rounded-lg border border-gray-700 min-w-0">
+                  <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Horas realizadas</p>
+                  <p class="text-white font-semibold">{{ mantenimiento.horas_realizadas }} h</p>
+                </div>
+
+                <div class="bg-[#111827] p-4 rounded-lg border border-gray-700 min-w-0">
+                  <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Costo</p>
+                  <p class="text-white font-semibold">${{ mantenimiento.costo | number }}</p>
+                </div>
+
+                <div class="bg-[#111827] p-4 rounded-lg border border-gray-700 min-w-0">
+                  <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Programado</p>
+                  <p class="text-white font-semibold">{{ mantenimiento.programado || 'N/A' }}</p>
+                </div>
+
+                <div
+                  class="sm:col-span-2 bg-[#111827] p-4 rounded-lg border border-gray-700 min-w-0"
+                >
+                  <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Descripción</p>
+                  <p class="text-white">{{ mantenimiento.descripcion || 'Sin descripción' }}</p>
+                </div>
+              </div>
+
+              <div class="border-t border-gray-700 pt-4 mt-2">
+                <p class="text-xs text-gray-500 mb-1">
+                  Creado: {{ mantenimiento.created_at | date : 'dd/MM/yyyy HH:mm' }}
+                </p>
+                <p class="text-xs text-gray-500">
+                  Actualizado: {{ mantenimiento.updated_at | date : 'dd/MM/yyyy HH:mm' }}
+                </p>
+              </div>
+
+              <div class="flex gap-4 mt-4">
+                <button
+                  (click)="navegarALista()"
+                  class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 rounded-lg"
+                >
+                  Volver
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- EDIT BLOCK (renderizado solo cuando modoEdicion=true) -->
+        </div>
+      </div>
+    </section>
+  </main>
+</body>

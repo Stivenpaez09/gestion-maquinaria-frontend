@@ -1,0 +1,340 @@
+<body class="bg-[#0f172a] text-gray-200 min-h-screen flex">
+  <app-sidebar-responsable></app-sidebar-responsable>
+
+  <!-- =========================
+       MAIN AREA
+  ========================== -->
+  <main class="flex-1 flex flex-col">
+    <!-- =========================
+         HEADER SUPERIOR
+    ========================== -->
+    <header
+      class="h-16 bg-[#1e293b] flex items-center justify-between px-6 border-b py-11 border-gray-800"
+    >
+      <div>
+        <h1 class="text-xl font-bold">Dashboard</h1>
+        <span class="text-sm text-gray-400">Gestión de mantenimiento</span>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <!-- Notificación -->
+        <span>
+          @if (alarmas == 0){
+          <a
+            routerLink="/ver-alarmas-responsable"
+            title="Ver alarmas"
+            class="group p-1 rounded hover:bg-[#1f2937] transition transform hover:scale-105 cursor-pointer inline-flex items-center"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="currentColor"
+              viewBox="0 0 256 256"
+              class="text-gray-400 group-hover:text-red-400"
+            >
+              <path
+                d="M225.29,165.93C216.61,151,212,129.57,212,104a84,84,0,0,0-168,0c0,25.58-4.59,47-13.27,61.93A20.08,20.08,0,0,0,30.66,186,19.77,19.77,0,0,0,48,196H84.18a44,44,0,0,0,87.64,0H208a19.77,19.77,0,0,0,17.31-10A20.08,20.08,0,0,0,225.29,165.93ZM128,212a20,20,0,0,1-19.6-16h39.2A20,20,0,0,1,128,212ZM54.66,172C63.51,154,68,131.14,68,104a60,60,0,0,1,120,0c0,27.13,4.48,50,13.33,68Z"
+              ></path>
+            </svg>
+          </a>
+          } @if (alarmas > 0){
+          <a
+            routerLink="/ver-alarmas-responsable"
+            title="Ver alarmas"
+            class="group p-1 rounded hover:bg-[#1f2937] transition transform hover:scale-105 cursor-pointer inline-flex items-center"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="currentColor"
+              viewBox="0 0 256 256"
+              class="text-red-400 group-hover:text-red-200"
+            >
+              <path
+                d="M225.81,74.65A11.86,11.86,0,0,1,220.3,76a12,12,0,0,1-10.67-6.47,90.1,90.1,0,0,0-32-35.38,12,12,0,1,1,12.8-20.29,115.25,115.25,0,0,1,40.54,44.62A12,12,0,0,1,225.81,74.65ZM46.37,69.53a90.1,90.1,0,0,1,32-35.38A12,12,0,1,0,65.6,13.86,115.25,115.25,0,0,0,25.06,58.48a12,12,0,0,0,5.13,16.17A11.86,11.86,0,0,0,35.7,76,12,12,0,0,0,46.37,69.53Zm173.51,98.35A20,20,0,0,1,204,200H171.81a44,44,0,0,1-87.62,0H52a20,20,0,0,1-15.91-32.12c7.17-9.33,15.73-26.62,15.88-55.94A76,76,0,0,1,204,112C204.15,141.26,212.71,158.55,219.88,167.88ZM147.6,200H108.4a20,20,0,0,0,39.2,0Zm48.74-24c-8.16-13-16.19-33.57-16.34-63.94A52,52,0,1,0,76,112c-.15,30.42-8.18,51-16.34,64Z"
+              ></path>
+            </svg>
+          </a>
+          }
+        </span>
+
+        <!-- Nombre usuario -->
+        <span class="text-gray-300">{{ usuario?.nombre }}</span>
+
+        <!-- Avatar -->
+        <img
+          [src]="getFotoUrl()"
+          class="w-10 h-10 rounded-full border border-gray-700"
+          onError="this.src='assets/images/operador.jpg'"
+        />
+      </div>
+    </header>
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+    ========================== -->
+    <section class="p-6 space-y-8">
+      <!-- =========================
+           CARDS SUPERIORES
+      ========================== -->
+      <div class="flex flex-row gap-12 w-full justify-center pb-8">
+        <!-- En operación -->
+        <button
+          (click)="getMaquinariasEnOperacion()"
+          [ngClass]="{ 'ring-2 ring-blue-400': filtroActual === 'en-operacion' }"
+          class="flex flex-col justify-between bg-slate-800 border border-slate-700 rounded-xl p-6 w-full cursor-pointer hover:bg-slate-700 transition-all"
+        >
+          <div class="flex flex-row justify-between mb-4">
+            <span class="text-slate-400 text-sm font-medium">En operacion</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              class="icon icon-tabler icons-tabler-outline icon-tabler-circle-check bg-blue-400/15 rounded-md text-blue-400 stroke-current"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+              <path d="M9 12l2 2l4 -4" />
+            </svg>
+          </div>
+          <p class="text-3xl font-bold text-center text-white">{{ resumen?.en_operacion }}</p>
+        </button>
+
+        <!-- Al día -->
+        <button
+          (click)="getMaquinariasAlDia()"
+          [ngClass]="{ 'ring-2 ring-emerald-400': filtroActual === 'al-dia' }"
+          class="flex flex-col justify-between bg-slate-800 border border-slate-700 rounded-xl p-6 w-full cursor-pointer hover:bg-slate-700 transition-all"
+        >
+          <div class="flex flex-row justify-between mb-4">
+            <span class="text-slate-400 text-sm font-medium">Al día</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              class="icon icon-tabler icons-tabler-outline icon-tabler-clock bg-emerald-400/15 rounded-md text-emerald-400 stroke-current"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+              <path d="M12 7v5l3 3" />
+            </svg>
+          </div>
+          <p class="text-3xl font-bold text-center text-white">{{ resumen?.al_dia }}</p>
+        </button>
+
+        <!-- Pendientes -->
+        <button
+          (click)="getMaquinariasPendientes()"
+          [ngClass]="{ 'ring-2 ring-amber-400': filtroActual === 'pendientes' }"
+          class="flex flex-col justify-between bg-slate-800 border border-slate-700 rounded-xl p-6 w-full cursor-pointer hover:bg-slate-700 transition-all"
+        >
+          <div class="flex flex-row justify-between mb-4">
+            <span class="text-slate-400 text-sm font-medium">Pendientes</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              class="icon icon-tabler icons-tabler-outline icon-tabler-info-thiangle bg-amber-400/15 rounded-md text-amber-400 stroke-current"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path
+                d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"
+              />
+              <path d="M12 9h.01" />
+              <path d="M11 12h1v4h1" />
+            </svg>
+          </div>
+          <p class="text-3xl font-bold text-center text-white">{{ resumen?.pendientes }}</p>
+        </button>
+
+        <!-- Vencidos -->
+        <button
+          (click)="getMaquinariasVencidas()"
+          [ngClass]="{ 'ring-2 ring-red-400': filtroActual === 'vencidos' }"
+          class="flex flex-col justify-between bg-slate-800 border border-slate-700 rounded-xl p-6 w-full cursor-pointer hover:bg-slate-700 transition-all"
+        >
+          <div class="flex flex-row justify-between mb-4">
+            <span class="text-slate-400 text-sm font-medium">Vencidos</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              class="icon icon-tabler icons-tabler-outline icon-tabler-xbox-x bg-red-400/15 rounded-md text-red-400 stroke-current"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M12 21a9 9 0 0 0 9 -9a9 9 0 0 0 -9 -9a9 9 0 0 0 -9 9a9 9 0 0 0 9 9z" />
+              <path d="M9 8l6 8" />
+              <path d="M15 8l-6 8" />
+            </svg>
+          </div>
+          <p class="text-3xl font-bold text-center text-white">{{ resumen?.vencidos }}</p>
+        </button>
+      </div>
+
+      <!-- =========================
+           TABLA DE MAQUINARIA
+      ========================== -->
+      <div class="bg-[#1e293b] rounded-xl shadow-xl p-6">
+        <h2 class="text-lg font-semibold mb-4">
+          Maquinaria @switch (filtroActual) { @case ('en-operacion') { en operación } @case
+          ('al-dia') { al día } @case ('pendientes') { pendientes } @case ('vencidos') { vencida }
+          @default { vista recientemente } }
+        </h2>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-left">
+            <thead class="border-b border-gray-700 text-gray-400 text-sm">
+              <tr>
+                <th class="py-3 px-4">ID</th>
+                <th class="py-3 px-4">MÁQUINA</th>
+                <th class="py-3 px-4">MODELO</th>
+                <th class="py-3 px-4">MARCA</th>
+                <th class="py-3 px-4">HORAS</th>
+                <th class="py-3 px-4">ESTADO</th>
+                <th class="py-3 px-4">VER</th>
+              </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-800">
+              @for (item of maquinariosPaginados; track item.id_maquina) {
+              <tr class="hover:bg-[#0f172a] transition">
+                <td class="py-3 px-4">{{ item.id_maquina }}</td>
+                <td class="py-3 px-4 font-medium">{{ item.nombre_maquina }}</td>
+                <td class="py-3 px-4">{{ item.modelo }}</td>
+                <td class="py-3 px-4">{{ item.marca }}</td>
+                <td class="py-3 px-4">{{ item.horas_totales }}</td>
+
+                <td class="py-3 px-4">
+                  <span
+                    class="px-3 py-1 text-xs rounded-md font-semibold"
+                    [ngClass]="{
+                      'bg-blue-600/20 text-blue-400': item.estado === 'operativa',
+                      'bg-yellow-600/20 text-yellow-400': item.estado === 'en mantenimiento',
+                      'bg-red-600/20 text-red-400': item.estado === 'fuera de servicio'
+                    }"
+                  >
+                    {{ item.estado }}
+                  </span>
+                </td>
+                <td class="py-3 px-4">
+                  <button
+                    routerLink="/detalles-maquinaria-responsable/{{ item.id_maquina }}"
+                    class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-sm"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    Ver
+                  </button>
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="6" class="py-4 text-center text-gray-500">
+                  No hay maquinarias disponibles
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- =========================
+             PAGINADOR
+        ========================== -->
+        <div class="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-gray-700">
+          <button
+            (click)="irAPaginaAnterior()"
+            [disabled]="paginaActual === 1"
+            class="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-700 text-gray-400 hover:bg-[#0f172a] hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M15 6l-6 6l6 6" />
+            </svg>
+          </button>
+
+          <!-- Números de página -->
+          <div class="flex items-center gap-2">
+            <span class="text-gray-400">Página</span>
+            <input
+              type="text"
+              [value]="paginaActual"
+              readonly
+              class="w-12 h-10 text-center bg-[#0f172a] border border-gray-700 rounded-lg text-white font-semibold"
+            />
+            <span class="text-gray-400">de {{ totalPaginas }}</span>
+          </div>
+
+          <button
+            (click)="irAPaginaSiguiente()"
+            [disabled]="paginaActual === totalPaginas"
+            class="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-700 text-gray-400 hover:bg-[#0f172a] hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M9 6l6 6l-6 6" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>

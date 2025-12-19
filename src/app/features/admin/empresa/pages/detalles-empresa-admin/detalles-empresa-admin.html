@@ -1,0 +1,315 @@
+<body class="bg-[#0f172a] text-gray-200 min-h-screen flex">
+  <app-sidebar-admin></app-sidebar-admin>
+
+  <!-- =========================
+       MAIN AREA
+  ========================== -->
+  <main class="flex-1 flex flex-col">
+    <!-- =========================
+         HEADER SUPERIOR
+    ========================== -->
+    <header
+      class="h-16 bg-[#1e293b] flex items-center justify-between px-6 border-b py-11 border-gray-800"
+    >
+      <div>
+        <h1 class="text-xl font-bold">Detalles de Maquinaria</h1>
+        <span class="text-sm text-gray-400">Información y gestión completa</span>
+      </div>
+      <button
+        (click)="activarEdicion()"
+        [disabled]="cargando"
+        class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 text-base"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          fill="#ffffff"
+          viewBox="0 0 256 256"
+          class="inline-block"
+        >
+          <path
+            d="M230.15,70.54,185.46,25.86a20,20,0,0,0-28.28,0L33.86,149.17A19.86,19.86,0,0,0,28,163.31V208a20,20,0,0,0,20,20H216a12,12,0,0,0,0-24H125L230.15,98.83A20,20,0,0,0,230.15,70.54ZM91,204H52V165l84-84,39,39ZM192,103,153,64l18.34-18.34,39,39Z"
+          ></path>
+        </svg>
+        Editar
+      </button>
+    </header>
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+    ========================== -->
+    <section class="p-6 flex-1 flex items-center justify-center">
+      <!-- Loader / contenido -->
+      @if (cargando) {
+      <div class="flex items-center justify-center h-48">
+        <div class="animate-spin">
+          <svg
+            class="w-12 h-12 text-[#f97316]"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+            ></path>
+          </svg>
+        </div>
+      </div>
+      } @else if (empresa) {
+      <!-- Mostrar detalles -->
+      @if (!modoEdicion) {
+      <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 space-y-6 max-w-4xl w-full">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-bold text-white">{{ empresa.nombre }}</h2>
+            <p class="text-sm text-gray-400">NIT: {{ empresa.nit }}</p>
+            <p class="text-sm text-gray-400 mt-1">ID: {{ empresa.id_empresa }}</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
+          <div>
+            <p class="text-xs text-gray-500 font-semibold">DIRECCIÓN</p>
+            <p class="text-white">{{ empresa.direccion || 'N/A' }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 font-semibold">CIUDAD</p>
+            <p class="text-white">{{ empresa.ciudad || 'N/A' }}</p>
+          </div>
+
+          <div>
+            <p class="text-xs text-gray-500 font-semibold">DEPARTAMENTO</p>
+            <p class="text-white">{{ empresa.departamento || 'N/A' }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 font-semibold">TELÉFONO</p>
+            <p class="text-white">{{ empresa.telefono || 'N/A' }}</p>
+          </div>
+
+          <div>
+            <p class="text-xs text-gray-500 font-semibold">EMAIL</p>
+            <p class="text-white">{{ empresa.email || 'N/A' }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 font-semibold">REPRESENTANTE</p>
+            <p class="text-white">{{ empresa.representante_legal || 'N/A' }}</p>
+          </div>
+
+          <div class="md:col-span-2">
+            <p class="text-xs text-gray-500 font-semibold">SECTOR</p>
+            <p class="text-white">{{ empresa.sector || 'N/A' }}</p>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-gray-700 text-xs text-gray-400">
+          <p>Creado: {{ empresa.created_at | date : 'dd/MM/yyyy HH:mm' }}</p>
+          <p>Actualizado: {{ empresa.updated_at | date : 'dd/MM/yyyy HH:mm' }}</p>
+        </div>
+
+        <!-- Botones inferiores -->
+        <div class="flex gap-3 pt-4">
+          <button
+            (click)="eliminarEmpresa()"
+            [disabled]="cargandoOperacion"
+            class="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-medium flex items-center justify-center gap-2"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+            Eliminar Empresa
+          </button>
+          <button
+            routerLink="/ver-empresas-admin"
+            class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg font-medium"
+          >
+            Volver
+          </button>
+        </div>
+      </div>
+      }
+
+      <!-- Formulario edición (PATCH) -->
+      @if (modoEdicion) {
+      <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 space-y-6 max-w-4xl w-full">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-white">Editar empresa</h2>
+          <div class="text-sm text-gray-400">ID: {{ empresa.id_empresa }}</div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm text-gray-400 mb-1"
+              >Nombre <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              [(ngModel)]="empresaForm.nombre"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+            />
+            @if (errores['nombre']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['nombre'] }}</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-400 mb-1"
+              >NIT <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              [(ngModel)]="empresaForm.nit"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+            />
+            @if (errores['nit']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['nit'] }}</p>
+            }
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-sm text-gray-400 mb-1"
+              >Dirección <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              [(ngModel)]="empresaForm.direccion"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+            />
+            @if (errores['direccion']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['direccion'] }}</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-400 mb-1"
+              >Ciudad <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              [(ngModel)]="empresaForm.ciudad"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+            />
+            @if (errores['ciudad']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['ciudad'] }}</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-400 mb-1"
+              >Departamento <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              [(ngModel)]="empresaForm.departamento"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+            />
+            @if (errores['departamento']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['departamento'] }}</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-400 mb-1"
+              >Teléfono <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              [(ngModel)]="empresaForm.telefono"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+            />
+            @if (errores['telefono']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['telefono'] }}</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-400 mb-1"
+              >Email <span class="text-red-500">*</span></label
+            >
+            <input
+              type="email"
+              [(ngModel)]="empresaForm.email"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+            />
+            @if (errores['email']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['email'] }}</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-400 mb-1"
+              >Representante legal <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              [(ngModel)]="empresaForm.representante_legal"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+            />
+            @if (errores['representante_legal']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['representante_legal'] }}</p>
+            }
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-sm text-gray-400 mb-1"
+              >Sector <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              [(ngModel)]="empresaForm.sector"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+            />
+            @if (errores['sector']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['sector'] }}</p>
+            }
+          </div>
+        </div>
+
+        <div class="flex gap-3 justify-end pt-4">
+          <button
+            (click)="cancelarEdicion()"
+            class="bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-lg"
+          >
+            Cancelar
+          </button>
+          <button
+            (click)="guardarCambios()"
+            [disabled]="cargandoOperacion"
+            class="bg-[#f97316] hover:bg-[#ea580c] text-white py-2 px-6 rounded-lg"
+          >
+            @if (cargandoOperacion) { <span>Guardando...</span> } @else {
+            <span>Guardar cambios</span> }
+          </button>
+        </div>
+      </div>
+      } } @else {
+      <div class="text-center py-12">
+        <p class="text-gray-400">Empresa no encontrada.</p>
+        <div class="mt-4">
+          <button
+            routerLink="/ver-empresas-admin"
+            class="bg-[#f97316] hover:bg-[#ea580c] text-white py-2 px-4 rounded-lg"
+          >
+            Volver a empresas
+          </button>
+        </div>
+      </div>
+      }
+    </section>
+  </main>
+</body>

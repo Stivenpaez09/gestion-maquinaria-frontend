@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../../environments/invironment.prod';
+import { environment } from '../../../environments/environment.prod';
 import { BehaviorSubject, interval, Observable, tap } from 'rxjs';
 import { LoginRequest, LoginResponse, TokenDecoded, Usuario } from '../models/auth.models';
 import { HttpClient } from '@angular/common/http';
@@ -42,6 +42,7 @@ export class AuthService {
 
   manejarLogin(response: LoginResponse) {
     this.guardarToken(response.token);
+    localStorage.setItem('usuario', JSON.stringify(response.usuario));
     this.usuarioSubject.next(response.usuario);
   }
 
@@ -106,11 +107,21 @@ export class AuthService {
     return decoded?.rol || null;
   }
 
+  obtenerUsername(): string | null {
+    const token = this.obtenerToken();
+    if (!token) return null;
+
+    const decoded = this.decodificarToken(token);
+    return decoded?.username || null;
+  }
+
   // -------------------------------------------------------
   // LOGOUT
   // -------------------------------------------------------
   logout() {
     this.borrarToken();
+    localStorage.removeItem('usuario');
+    localStorage.removeItem('auth_token');
     this.usuarioSubject.next(null);
   }
 
@@ -143,21 +154,39 @@ export class AuthService {
   }
 
   // -------------------------------------------------------
+  // Obtener usuario actual
+  // -------------------------------------------------------
+  obtenerUsuario(): Usuario | null {
+    const token = this.obtenerToken();
+    if (!token) return null;
+
+    const decoded = this.decodificarToken(token);
+    if (!decoded) return null;
+
+    const usuarioActual = this.usuarioSubject.getValue();
+    return usuarioActual;
+  }
+
+  obtenerNombreUsuario(): string | null {
+    const usuario = this.usuarioSubject.getValue();
+    return usuario?.nombre || null;
+  }
+
+  // -------------------------------------------------------
   // VERIFICAR TOKEN AL INICIAR EL SERVICIO
   // -------------------------------------------------------
   verificarTokenAlIniciar() {
     const token = this.obtenerToken();
 
-    if (!token) {
+    if (!token || this.tokenExpirado(token)) {
       this.logout();
       return;
     }
 
-    if (this.tokenExpirado(token)) {
-      this.logout();
-      return;
+    const userStr = localStorage.getItem('usuario');
+    if (userStr) {
+      const usuario = JSON.parse(userStr) as Usuario;
+      this.usuarioSubject.next(usuario);
     }
-
-    const decoded = this.decodificarToken(token);
   }
 }

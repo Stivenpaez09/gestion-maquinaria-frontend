@@ -1,0 +1,273 @@
+<body class="bg-[#0f172a] text-gray-200 min-h-screen flex">
+  <app-sidebar-admin></app-sidebar-admin>
+
+  <!-- =========================
+       MAIN AREA
+  ========================== -->
+  <main class="flex-1 flex flex-col">
+    <!-- =========================
+         HEADER SUPERIOR
+    ========================== -->
+    <header
+      class="h-16 bg-[#1e293b] flex items-center justify-between px-6 border-b py-11 border-gray-800"
+    >
+      <div>
+        <h1 class="text-xl font-bold">Gestión de Usuarios</h1>
+        <span class="text-sm text-gray-400">Administracion y control de usuarios</span>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <button
+          class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 text-base"
+          routerLink="/crear-usuario-admin"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="#ffffff"
+            viewBox="0 0 256 256"
+          >
+            <path
+              d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm52-84a12,12,0,0,1-12,12H140v28a12,12,0,0,1-24,0V140H88a12,12,0,0,1,0-24h28V88a12,12,0,0,1,24,0v28h28A12,12,0,0,1,180,128Z"
+            ></path>
+          </svg>
+          Crear Usuario
+        </button>
+      </div>
+    </header>
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+    ========================== -->
+    <section class="p-6 space-y-8">
+      <!-- BUSCADOR -->
+      <div class="flex gap-4">
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (keyup.enter)="buscar()"
+          placeholder="Ingresa el nombre del usuario..."
+          class="flex-1 bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#f97316] focus:border-transparent transition"
+        />
+        <button
+          (click)="buscar()"
+          class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center gap-2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+          Buscar
+        </button>
+      </div>
+
+      <!-- LISTA DE USUARIOS -->
+      @if (cargando) {
+      <div class="flex items-center justify-center h-64">
+        <div class="animate-spin">
+          <svg
+            class="w-12 h-12 text-[#f97316]"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+        </div>
+      </div>
+      } @else if (usuariosFiltrados.length > 0) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (usuario of usuariosFiltrados; track usuario.id_usuario) {
+        <div
+          class="bg-[#1e293b] border border-gray-700 rounded-xl overflow-hidden hover:border-[#f97316] transition-colors duration-300 hover:shadow-lg hover:shadow-[#f97316]/10"
+        >
+          <!-- Foto del Usuario -->
+          <div
+            class="relative h-40 bg-gradient-to-br from-[#0b1220] to-[#111827] overflow-hidden flex items-center justify-center"
+          >
+            <img
+              [src]="obtenerFotoUrl(usuario.foto)"
+              [alt]="usuario.nombre"
+              class="w-full h-full object-cover"
+              (error)="$event.target.src = '/assets/images/operador.jpg'"
+            />
+            <div class="absolute inset-0 bg-black/20"></div>
+          </div>
+
+          <!-- Contenido -->
+          <div class="p-6">
+            <!-- Nombre y ID -->
+            <div class="mb-4">
+              <h3 class="text-lg font-bold text-white truncate">
+                {{ usuario.nombre }}
+              </h3>
+              <p class="text-sm text-gray-500">ID: {{ usuario.id_usuario }}</p>
+            </div>
+
+            <!-- Línea separadora -->
+            <div class="border-t border-gray-700 mb-4"></div>
+
+            <!-- Información clave -->
+            <div class="space-y-3 mb-6">
+              <!-- Cargo -->
+              <div class="flex justify-between items-center">
+                <span class="text-gray-400">Cargo</span>
+                <span class="text-white font-medium">{{ usuario.cargo }}</span>
+              </div>
+
+              <!-- Email o Teléfono -->
+              @if (usuario.email) {
+              <div class="flex justify-between items-center">
+                <span class="text-gray-400">Email</span>
+                <span class="text-white font-medium">{{ usuario.email }}</span>
+              </div>
+              } @else if (usuario.telefono) {
+              <div class="flex justify-between items-center">
+                <span class="text-gray-400">Teléfono</span>
+                <span class="text-white font-medium">{{ usuario.telefono }}</span>
+              </div>
+              }
+
+              <!-- Fecha de Ingreso -->
+              @if (usuario.fecha_ingreso) {
+              <div class="flex justify-between items-center">
+                <span class="text-gray-400">Fecha Ingreso</span>
+                <span class="text-white font-medium">{{
+                  formatearFecha(usuario.fecha_ingreso)
+                }}</span>
+              </div>
+              }
+            </div>
+
+            <!-- Botón Ver -->
+            <div class="flex gap-2 pt-3 border-t border-gray-700">
+              <button
+                routerLink="/detalles-usuario-admin/{{ usuario.id_usuario }}"
+                class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg flex items-center justify-center gap-2 text-sm"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="inline-block"
+                >
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                Ver
+              </button>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+      } @else {
+      <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-12 text-center">
+        <h3 class="text-xl font-semibold text-white mb-2">No hay usuarios</h3>
+        <p class="text-gray-400 mb-6">
+          @if (searchTerm) { No se encontraron usuarios que coincidan con tu búsqueda } @else {
+          Comienza creando tu primer usuario }
+        </p>
+        <button
+          routerLink="/crear-usuario-admin"
+          class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-3 px-6 rounded-lg transition-colors inline-flex items-center gap-2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="#ffffff"
+            viewBox="0 0 256 256"
+          >
+            <path
+              d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm52-84a12,12,0,0,1-12,12H140v28a12,12,0,0,1-24,0V140H88a12,12,0,0,1,0-24h28V88a12,12,0,0,1,24,0v28h28A12,12,0,0,1,180,128Z"
+            ></path>
+          </svg>
+          Crear Usuario
+        </button>
+      </div>
+      }
+
+      <!-- PAGINADOR -->
+      @if (totalPaginas > 1) {
+      <div class="flex items-center justify-center gap-4 mt-8 pt-6 border-t border-gray-700">
+        <button
+          (click)="irAPaginaAnterior()"
+          [disabled]="paginaActual === 1"
+          class="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-700 text-gray-400 hover:bg-[#0b1220] hover:text-white transition disabled:opacity-50"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M15 6l-6 6l6 6" />
+          </svg>
+        </button>
+
+        <div class="flex items-center gap-2">
+          <span class="text-gray-400">Página</span>
+          <input
+            type="text"
+            [value]="paginaActual"
+            readonly
+            class="w-12 h-10 text-center bg-[#0f172a] border border-gray-700 rounded-lg text-white font-semibold"
+          />
+          <span class="text-gray-400">de {{ totalPaginas }}</span>
+        </div>
+
+        <button
+          (click)="irAPaginaSiguiente()"
+          [disabled]="paginaActual === totalPaginas"
+          class="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-700 text-gray-400 hover:bg-[#0b1220] hover:text-white transition disabled:opacity-50"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M9 6l6 6l-6 6" />
+          </svg>
+        </button>
+      </div>
+      }
+    </section>
+  </main>
+</body>

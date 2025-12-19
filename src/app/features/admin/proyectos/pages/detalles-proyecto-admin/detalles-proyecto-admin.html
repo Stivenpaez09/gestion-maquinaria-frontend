@@ -1,0 +1,760 @@
+<body class="bg-[#0f172a] text-gray-200 min-h-screen flex">
+  <app-sidebar-admin></app-sidebar-admin>
+
+  <!-- =========================
+       MAIN AREA
+  ========================== -->
+  <main class="flex-1 flex flex-col">
+    <!-- =========================
+         HEADER SUPERIOR
+    ========================== -->
+    <header
+      class="h-16 bg-[#1e293b] flex items-center justify-between px-6 border-b py-11 border-gray-800"
+    >
+      <div>
+        <h1 class="text-xl font-bold">Detalles de Proyecto</h1>
+        <span class="text-sm text-gray-400">Información y gestion completa</span>
+      </div>
+      <button
+        (click)="activarEdicion()"
+        [disabled]="cargando"
+        class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 text-base"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          fill="#ffffff"
+          viewBox="0 0 256 256"
+          class="inline-block"
+        >
+          <path
+            d="M230.15,70.54,185.46,25.86a20,20,0,0,0-28.28,0L33.86,149.17A19.86,19.86,0,0,0,28,163.31V208a20,20,0,0,0,20,20H216a12,12,0,0,0,0-24H125L230.15,98.83A20,20,0,0,0,230.15,70.54ZM91,204H52V165l84-84,39,39ZM192,103,153,64l18.34-18.34,39,39Z"
+          ></path>
+        </svg>
+        Editar
+      </button>
+    </header>
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+    ========================== -->
+    <section class="p-6 flex-1 flex items-center justify-center">
+      @if (cargando) {
+      <div class="flex items-center justify-center">
+        <svg
+          class="animate-spin w-12 h-12 text-[#f97316]"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+          ></path>
+        </svg>
+      </div>
+      } @else if (proyecto && !modoEdicion) {
+      <!-- Vista detalles -->
+      <div class="bg-[#1e293b] border border-gray-700 rounded-2xl p-8 max-w-3xl w-full shadow-lg">
+        <!-- Título y ID -->
+        <div class="mb-6">
+          <h2 class="text-3xl font-bold text-white mb-2">{{ proyecto.nombre_proyecto }}</h2>
+          <div class="flex items-center gap-4 text-gray-400">
+            <span
+              >ID: <span class="text-gray-300 font-semibold">{{ proyecto.id_proyecto }}</span></span
+            >
+          </div>
+        </div>
+
+        <!-- Grid información principal -->
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-8">
+          <!-- Fechas -->
+          <div>
+            <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Fecha Inicio</p>
+            <p class="text-white font-semibold">{{ proyecto.fecha_inicio || 'N/A' }}</p>
+          </div>
+
+          <div>
+            <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Fecha Fin</p>
+            <p class="text-white font-semibold">{{ proyecto.fecha_fin || 'N/A' }}</p>
+          </div>
+
+          <!-- Spacer o info adicional -->
+          <div>
+            <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Estado</p>
+            <p class="text-white font-semibold">Activo</p>
+          </div>
+        </div>
+
+        <!-- Card Empresa clickeable -->
+        @if (empresaObj) {
+        <div
+          (click)="irADetallesEmpresa(empresaObj.id_empresa)"
+          class="bg-gradient-to-r from-[#111827] to-[#0b1220] border border-gray-700 rounded-xl p-6 mb-8 cursor-pointer hover:border-[#f97316] transition-all duration-200 transform hover:scale-102"
+        >
+          <p class="text-xs text-gray-500 font-semibold uppercase mb-3">Empresa Asignada</p>
+          <h3 class="text-2xl font-bold text-white mb-1">{{ empresaObj.nombre }}</h3>
+          <p class="text-sm text-[#f97316]">{{ empresaObj.nit }}</p>
+          <p class="text-xs text-gray-400 mt-3">Haz clic para ver detalles</p>
+        </div>
+        } @else {
+        <div
+          class="bg-gradient-to-r from-[#111827] to-[#0b1220] border border-gray-700 rounded-xl p-6 mb-8"
+        >
+          <p class="text-xs text-gray-500 font-semibold uppercase mb-3">Empresa</p>
+          <p class="text-white">Sin empresa asignada</p>
+        </div>
+        }
+
+        <!-- Descripción -->
+        @if (proyecto.descripcion) {
+        <div class="mb-8">
+          <p class="text-xs text-gray-500 font-semibold uppercase mb-3">Descripción</p>
+          <p class="text-gray-300 leading-relaxed">{{ proyecto.descripcion }}</p>
+        </div>
+        }
+
+        <!-- Formulario Agregar Maquinaria -->
+        <div class="mb-8">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-lg font-bold text-white mb-4">Maquinarias Asignadas al Proyecto</span>
+            @if (!mostrarFormularioMaquinaria) {
+            <button
+              (click)="mostrarFormularioAgregarMaquinaria()"
+              [disabled]="cargandoOperacion"
+              class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 text-sm flex items-center gap-2"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="#ffffff"
+                viewBox="0 0 256 256"
+              >
+                <path
+                  d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm52-84a12,12,0,0,1-12,12H140v28a12,12,0,0,1-24,0V140H88a12,12,0,0,1,0-24h28V88a12,12,0,0,1,24,0v28h28A12,12,0,0,1,180,128Z"
+                ></path>
+              </svg>
+              Agregar Maquinaria
+            </button>
+            }
+          </div>
+
+          @if (mostrarFormularioMaquinaria) {
+          <div
+            class="bg-gradient-to-r from-[#111827] to-[#0b1220] border border-gray-700 rounded-xl p-6"
+          >
+            <h4 class="text-md font-semibold text-white mb-4">Nueva Asignación de Maquinaria</h4>
+
+            <div class="space-y-4">
+              <!-- Máquina -->
+              <div>
+                <label class="block text-sm text-gray-300 mb-2"
+                  >Máquina <span class="text-red-500">*</span></label
+                >
+                @if (cargandoMaquinarias) {
+                <div
+                  class="flex items-center gap-3 bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3"
+                >
+                  <svg
+                    class="animate-spin h-5 w-5 text-[#f97316]"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    ></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    ></path>
+                  </svg>
+                  <span class="text-gray-400 text-sm">Cargando maquinarias...</span>
+                </div>
+                } @else {
+                <div class="relative">
+                  <select
+                    [(ngModel)]="proyectoMaquinariaForm.maquina"
+                    class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white appearance-none focus:outline-none focus:ring-2 focus:ring-[#f97316]"
+                  >
+                    <option [ngValue]="0">-- Seleccione una máquina --</option>
+                    @for (maquina of maquinarias; track maquina.id_maquina) {
+                    <option [ngValue]="maquina.id_maquina">
+                      {{ maquina.nombre_maquina }}
+                      @if (maquina.marca) {
+                      <span> - {{ maquina.marca }}</span>
+                      } @if (maquina.modelo) {
+                      <span> ({{ maquina.modelo }})</span>
+                      }
+                      <span> - {{ maquina.estado }}</span>
+                    </option>
+                    }
+                  </select>
+                  <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                    <svg
+                      class="w-4 h-4 text-gray-400"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                } @if (erroresMaquinaria['maquina']) {
+                <p class="text-red-500 text-xs mt-1">{{ erroresMaquinaria['maquina'] }}</p>
+                }
+              </div>
+
+              <!-- Horas Totales -->
+              <div>
+                <label class="block text-sm text-gray-300 mb-2"
+                  >Horas Totales Pactadas <span class="text-red-500">*</span></label
+                >
+                <input
+                  type="number"
+                  [(ngModel)]="proyectoMaquinariaForm.horas_totales"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                  class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#f97316]"
+                />
+                @if (erroresMaquinaria['horas_totales']) {
+                <p class="text-red-500 text-xs mt-1">{{ erroresMaquinaria['horas_totales'] }}</p>
+                }
+              </div>
+
+              <!-- Finalizado (opcional) -->
+              <div class="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="proyectoMaquinariaForm.finalizado"
+                  id="finalizado"
+                  class="w-4 h-4 text-[#f97316] bg-[#0f172a] border-gray-700 rounded focus:ring-[#f97316]"
+                />
+                <label for="finalizado" class="text-sm text-gray-300 cursor-pointer"
+                  >Marcar como finalizado</label
+                >
+              </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex gap-4 mt-6">
+              <button
+                (click)="cancelarAgregarMaquinaria()"
+                [disabled]="cargandoCrearMaquinaria"
+                class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                (click)="crearProyectoMaquinaria()"
+                [disabled]="cargandoCrearMaquinaria"
+                class="flex-1 bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                @if (cargandoCrearMaquinaria) {
+                <svg
+                  class="animate-spin h-5 w-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  ></circle>
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  ></path>
+                </svg>
+                Guardando... } @else {
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="#ffffff"
+                  viewBox="0 0 256 256"
+                >
+                  <path
+                    d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm52-84a12,12,0,0,1-12,12H140v28a12,12,0,0,1-24,0V140H88a12,12,0,0,1,0-24h28V88a12,12,0,0,1,24,0v28h28A12,12,0,0,1,180,128Z"
+                  ></path>
+                </svg>
+                Asignar Máquina }
+              </button>
+            </div>
+          </div>
+          }
+        </div>
+
+        <!-- Lista de Maquinarias Asignadas -->
+        <div class="mb-8">
+          @if (cargandoProyectoMaquinarias) {
+          <div class="flex items-center justify-center py-8">
+            <svg
+              class="animate-spin w-8 h-8 text-[#f97316]"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              ></path>
+            </svg>
+          </div>
+          } @else if (proyectoMaquinarias.length > 0) {
+          <div class="space-y-4">
+            @for (pm of proyectoMaquinarias; track pm.id_proyecto_maquinaria) {
+            <div
+              class="bg-gradient-to-r from-[#111827] to-[#0b1220] border border-gray-700 rounded-xl p-6"
+            >
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex-1">
+                  <h4 class="text-lg font-semibold text-white mb-2">
+                    {{ obtenerNombreMaquina(pm.maquina) }}
+                  </h4>
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div>
+                      <p class="text-gray-500 mb-1">Fecha Asignación</p>
+                      <p class="text-white">{{ formatearFecha(pm.fecha_asignacion) }}</p>
+                    </div>
+                    <div>
+                      <p class="text-gray-500 mb-1">Horas Totales</p>
+                      @if (editandoHoras[pm.id_proyecto_maquinaria]) {
+                      <div class="flex items-center gap-2">
+                        <input
+                          type="number"
+                          [(ngModel)]="horasTemporales[pm.id_proyecto_maquinaria]"
+                          min="0"
+                          step="0.01"
+                          class="w-24 bg-[#0f172a] border border-gray-700 rounded px-2 py-1 text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#f97316]"
+                        />
+                        <button
+                          (click)="guardarHorasTotales(pm)"
+                          [disabled]="cargandoEditar[pm.id_proyecto_maquinaria]"
+                          class="text-green-400 hover:text-green-300 disabled:opacity-50"
+                          title="Guardar"
+                        >
+                          @if (cargandoEditar[pm.id_proyecto_maquinaria]) {
+                          <svg
+                            class="animate-spin h-4 w-4"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              class="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              stroke-width="4"
+                            ></circle>
+                            <path
+                              class="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                            ></path>
+                          </svg>
+                          } @else {
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                          </svg>
+                          }
+                        </button>
+                        <button
+                          (click)="cancelarEdicionHoras(pm.id_proyecto_maquinaria)"
+                          class="text-red-400 hover:text-red-300"
+                          title="Cancelar"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                          </svg>
+                        </button>
+                      </div>
+                      } @else {
+                      <div class="flex items-center gap-2">
+                        <p class="text-white">{{ pm.horas_totales }} h</p>
+                        <button
+                          (click)="activarEdicionHoras(pm.id_proyecto_maquinaria, pm.horas_totales)"
+                          class="text-[#f97316] hover:text-[#ea580c]"
+                          title="Editar horas"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <path
+                              d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                            ></path>
+                            <path
+                              d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                            ></path>
+                          </svg>
+                        </button>
+                      </div>
+                      }
+                    </div>
+                    <div>
+                      <p class="text-gray-500 mb-1">Horas Acumuladas</p>
+                      <p class="text-white">{{ pm.horas_acumuladas }} h</p>
+                    </div>
+                    <div>
+                      <p class="text-gray-500 mb-1">Estado</p>
+                      <span
+                        class="px-2 py-1 text-xs rounded-md font-semibold"
+                        [ngClass]="{
+                          'bg-green-600/20 text-green-400': pm.finalizado,
+                          'bg-yellow-600/20 text-yellow-400': !pm.finalizado
+                        }"
+                      >
+                        {{ pm.finalizado ? 'Finalizado' : 'En Progreso' }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2 ml-4">
+                  <button
+                    (click)="eliminarProyectoMaquinaria(pm)"
+                    [disabled]="cargandoEliminar[pm.id_proyecto_maquinaria]"
+                    class="text-red-400 hover:text-red-300 disabled:opacity-50 p-2"
+                    title="Eliminar asignación"
+                  >
+                    @if (cargandoEliminar[pm.id_proyecto_maquinaria]) {
+                    <svg
+                      class="animate-spin h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                      ></circle>
+                      <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      ></path>
+                    </svg>
+                    } @else {
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path
+                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                      ></path>
+                    </svg>
+                    }
+                  </button>
+                </div>
+              </div>
+            </div>
+            }
+          </div>
+          } @else {
+          <div class="bg-[#111827] border border-gray-700 rounded-xl p-8 text-center">
+            <p class="text-gray-400">No hay maquinarias asignadas a este proyecto.</p>
+          </div>
+          }
+        </div>
+
+        <!-- Timestamps -->
+        <div class="border-t border-gray-700 pt-6 mb-6">
+          <p class="text-xs text-gray-500 mb-2">
+            Creado: {{ proyecto.created_at | date : 'dd/MM/yyyy HH:mm' }}
+          </p>
+          <p class="text-xs text-gray-500">
+            Actualizado: {{ proyecto.updated_at | date : 'dd/MM/yyyy HH:mm' }}
+          </p>
+        </div>
+
+        <!-- Botones -->
+        <div class="flex gap-4">
+          <button
+            (click)="eliminarProyecto()"
+            [disabled]="cargandoOperacion"
+            class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-all disabled:opacity-50"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              class="inline-block mr-2"
+            >
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path
+                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+              ></path>
+            </svg>
+            Eliminar Proyecto
+          </button>
+          <button
+            routerLink="/ver-proyectos-admin"
+            class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-all"
+          >
+            Volver
+          </button>
+        </div>
+      </div>
+      } @else if (proyecto && modoEdicion) {
+      <!-- Vista edición -->
+      <div class="bg-[#0b1220] border border-gray-700 rounded-2xl p-8 max-w-3xl w-full shadow-lg">
+        <h2 class="text-2xl font-bold text-white mb-1">Editar Proyecto</h2>
+        <p class="text-sm text-gray-400 mb-6">ID: #{{ proyecto.id_proyecto }}</p>
+
+        <div class="space-y-4">
+          <!-- Nombre -->
+          <div>
+            <label class="block text-sm text-gray-300 mb-2"
+              >Nombre del proyecto <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              [(ngModel)]="proyectoForm.nombre_proyecto"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#f97316]"
+            />
+            @if (errores['nombre_proyecto']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['nombre_proyecto'] }}</p>
+            }
+          </div>
+
+          <!-- Empresa -->
+          <div>
+            <label class="block text-sm text-gray-300 mb-2">Empresa</label>
+            @if (cargandoEmpresas) {
+            <div
+              class="flex items-center gap-3 bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3"
+            >
+              <svg
+                class="animate-spin h-5 w-5 text-[#f97316]"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                ></path>
+              </svg>
+              <span class="text-gray-400 text-sm">Cargando empresas...</span>
+            </div>
+            } @else {
+            <div class="relative">
+              <select
+                [(ngModel)]="proyectoForm.empresa"
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white appearance-none"
+              >
+                <option [ngValue]="null">-- Sin empresa --</option>
+                @for (emp of empresas; track emp.id_empresa) {
+                <option [ngValue]="emp.id_empresa">{{ emp.nombre }} — {{ emp.nit }}</option>
+                }
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                <svg
+                  class="w-4 h-4 text-gray-400"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
+            </div>
+            } @if (errores['empresa']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['empresa'] }}</p>
+            }
+          </div>
+
+          <!-- Fechas -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm text-gray-300 mb-2">Fecha Inicio</label>
+              <input
+                type="date"
+                [(ngModel)]="proyectoForm.fecha_inicio"
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+              />
+              @if (errores['fecha_inicio']) {
+              <p class="text-red-500 text-xs mt-1">{{ errores['fecha_inicio'] }}</p>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm text-gray-300 mb-2">Fecha Fin</label>
+              <input
+                type="date"
+                [(ngModel)]="proyectoForm.fecha_fin"
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+              />
+              @if (errores['fecha_fin']) {
+              <p class="text-red-500 text-xs mt-1">{{ errores['fecha_fin'] }}</p>
+              }
+            </div>
+          </div>
+
+          <!-- Descripción -->
+          <div>
+            <label class="block text-sm text-gray-300 mb-2">Descripción</label>
+            <textarea
+              rows="5"
+              [(ngModel)]="proyectoForm.descripcion"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white resize-none"
+            ></textarea>
+            @if (errores['descripcion']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['descripcion'] }}</p>
+            }
+          </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="flex gap-4 mt-6">
+          <button
+            (click)="cancelarEdicion()"
+            class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 rounded-lg"
+          >
+            Cancelar
+          </button>
+          <button
+            (click)="guardarCambios()"
+            [disabled]="cargandoOperacion"
+            class="flex-1 bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2 disabled:opacity-60"
+          >
+            @if (cargandoOperacion) {
+            <svg
+              class="animate-spin h-5 w-5"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              ></path>
+            </svg>
+            Guardando... } @else { Guardar cambios }
+          </button>
+        </div>
+      </div>
+      } @else {
+      <div class="text-center">
+        <p class="text-gray-400 mb-4">Proyecto no encontrado</p>
+        <button
+          routerLink="/ver-proyectos-admin"
+          class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-2 px-6 rounded-lg"
+        >
+          Volver a proyectos
+        </button>
+      </div>
+      }
+    </section>
+  </main>
+</body>

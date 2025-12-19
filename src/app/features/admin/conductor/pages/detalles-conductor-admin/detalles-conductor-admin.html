@@ -1,0 +1,237 @@
+<body class="bg-[#0f172a] text-gray-200 min-h-screen flex">
+  <app-sidebar-admin></app-sidebar-admin>
+
+  <!-- =========================
+       MAIN AREA
+  ========================== -->
+  <main class="flex-1 flex flex-col">
+    <!-- =========================
+         HEADER SUPERIOR
+    ========================== -->
+    <header
+      class="h-16 bg-[#1e293b] flex items-center justify-between px-6 border-b py-11 border-gray-800"
+    >
+      <div>
+        <h1 class="text-xl font-bold">Detalles de Proyecto</h1>
+        <span class="text-sm text-gray-400">Información y gestion completa</span>
+      </div>
+      <button
+        (click)="activarEdicion()"
+        [disabled]="cargando"
+        class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 text-base"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          fill="#ffffff"
+          viewBox="0 0 256 256"
+          class="inline-block"
+        >
+          <path
+            d="M230.15,70.54,185.46,25.86a20,20,0,0,0-28.28,0L33.86,149.17A19.86,19.86,0,0,0,28,163.31V208a20,20,0,0,0,20,20H216a12,12,0,0,0,0-24H125L230.15,98.83A20,20,0,0,0,230.15,70.54ZM91,204H52V165l84-84,39,39ZM192,103,153,64l18.34-18.34,39,39Z"
+          ></path>
+        </svg>
+        Editar
+      </button>
+    </header>
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+    ========================== -->
+    <section class="p-6 flex-1 flex items-center justify-center">
+      <div class="max-w-3xl w-full min-w-0">
+        <div
+          class="bg-[#1e293b] border border-gray-700 rounded-2xl p-6 space-y-6 min-w-0 overflow-x-hidden"
+        >
+          <!-- DETALLES (visible cuando modoEdicion = false) -->
+          <div *ngIf="conductor && !modoEdicion" class="space-y-4 min-w-0">
+            <div>
+              <h2 class="text-2xl font-bold text-white truncate">{{ conductor.licencia }}</h2>
+              <p class="text-sm text-gray-400">ID: {{ conductor.id_conductor }}</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <p class="text-xs text-gray-400 uppercase">Fecha de vencimiento</p>
+                <p class="text-white font-medium">
+                  {{ conductor.fecha_vencimiento | date : 'dd/MM/yyyy' }}
+                </p>
+              </div>
+
+              <div>
+                <p class="text-xs text-gray-400 uppercase">Licencia vencida</p>
+                <p class="text-white font-medium">{{ conductor.licencia_vencida ? 'Sí' : 'No' }}</p>
+              </div>
+            </div>
+
+            <div>
+              <p class="text-xs text-gray-400 uppercase mb-2">Usuario</p>
+
+              <button
+                (click)="verDetalleUsuario()"
+                class="w-full text-left bg-gradient-to-r bg-[#0b1220] cursor-pointer hover:border-[#f97316] transition-all duration-200 transform hover:scale-102 rounded-lg p-4 border border-gray-700 flex items-center justify-between gap-4 min-w-0"
+              >
+                <div class="min-w-0">
+                  <p class="text-white font-semibold truncate">{{ usuario?.nombre || '—' }}</p>
+                  <p class="text-xs text-gray-400">
+                    ID: {{ usuario?.id_usuario || conductor.usuario }}
+                  </p>
+                  <p *ngIf="usuario?.cargo" class="text-sm text-gray-400 truncate">
+                    {{ usuario?.cargo }}
+                  </p>
+                </div>
+
+                <div class="text-sm text-gray-400 shrink-0">Ver detalles</div>
+              </button>
+            </div>
+
+            <div class="border-t border-gray-700 pt-4 flex gap-4">
+              <button
+                (click)="eliminarConductor()"
+                class="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  class="inline-block mr-2"
+                >
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path
+                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                  ></path>
+                </svg>
+                Eliminar Conductor
+              </button>
+              <button
+                (click)="volver()"
+                class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg"
+              >
+                Volver
+              </button>
+            </div>
+
+            <div class="text-xs text-gray-400">
+              <p *ngIf="conductor.created_at">
+                Creado: {{ conductor.created_at | date : 'dd/MM/yyyy HH:mm' }}
+              </p>
+              <p *ngIf="conductor.updated_at">
+                Actualizado: {{ conductor.updated_at | date : 'dd/MM/yyyy HH:mm' }}
+              </p>
+            </div>
+          </div>
+
+          <!-- FORMULARIO DE EDICIÓN (visible cuando modoEdicion = true) -->
+          <form
+            *ngIf="conductor && modoEdicion"
+            (ngSubmit)="guardarCambios()"
+            class="space-y-4 w-full max-w-full min-w-0 overflow-x-hidden"
+          >
+            <div>
+              <label class="block text-sm text-gray-300 mb-1">ID</label>
+              <input
+                type="text"
+                [value]="conductor.id_conductor"
+                disabled
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-gray-300"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm text-gray-300 mb-1"
+                >Licencia <span class="text-red-500">*</span></label
+              >
+              <input
+                name="licencia"
+                [(ngModel)]="form.licencia"
+                type="text"
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white max-w-full min-w-0"
+              />
+              <p *ngIf="errores['licencia']" class="text-red-500 text-xs mt-1">
+                {{ errores['licencia'] }}
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm text-gray-300 mb-1"
+                  >Fecha de vencimiento <span class="text-red-500">*</span></label
+                >
+                <input
+                  name="fecha_vencimiento"
+                  [(ngModel)]="form.fecha_vencimiento"
+                  type="date"
+                  class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white max-w-full min-w-0"
+                />
+                <p *ngIf="errores['fecha_vencimiento']" class="text-red-500 text-xs mt-1">
+                  {{ errores['fecha_vencimiento'] }}
+                </p>
+              </div>
+
+              <div class="flex items-center gap-4">
+                <label class="inline-flex items-center text-sm text-gray-300">
+                  <input
+                    type="checkbox"
+                    name="licencia_vencida"
+                    [(ngModel)]="form.licencia_vencida"
+                    class="h-4 w-4"
+                  />
+                  <span class="ml-2">Licencia vencida</span>
+                </label>
+                <p *ngIf="errores['licencia_vencida']" class="text-red-500 text-xs mt-1">
+                  {{ errores['licencia_vencida'] }}
+                </p>
+              </div>
+            </div>
+
+            <div class="flex gap-4 mt-4">
+              <button
+                type="button"
+                (click)="cancelarEdicion()"
+                class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                [disabled]="guardando"
+                class="flex-1 bg-[#f97316] hover:bg-[#ea580c] text-white py-3 rounded-lg"
+              >
+                {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
+              </button>
+            </div>
+          </form>
+
+          <div *ngIf="!conductor && !cargando" class="text-gray-400">Conductor no encontrado.</div>
+          <div *ngIf="cargando" class="flex justify-center items-center">
+            <svg
+              class="w-12 h-12 text-[#f97316] animate-spin"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              ></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>

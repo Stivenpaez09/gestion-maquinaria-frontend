@@ -1,0 +1,232 @@
+<body class="bg-[#0f172a] text-gray-200 min-h-screen flex overflow-x-hidden">
+  <app-sidebar-responsable></app-sidebar-responsable>
+
+  <!-- MAIN: contenido con scroll vertical; no overflow-x -->
+  <main class="flex-1 flex flex-col overflow-y-auto min-w-0">
+    <!-- HEADER -->
+    <header
+      class="h-16 bg-[#1e293b] flex items-center justify-between px-6 py-11 border-b border-gray-800"
+    >
+      <div>
+        <h1 class="text-xl font-bold">Gestión de mantenimientos</h1>
+        <span class="text-sm text-gray-400">Administración de mantenimientos en el sistema</span>
+      </div>
+    </header>
+
+    <!-- CONTENIDO -->
+    <section class="p-6 space-y-8">
+      <!-- Buscador y filtros -->
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center gap-4">
+          <div class="flex-1 relative">
+            <svg
+              class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input
+              type="text"
+              [(ngModel)]="searchTerm"
+              (keyup.enter)="buscar()"
+              placeholder="Buscar por tipo, descripción o ID"
+              class="w-full bg-[#1e293b] border border-gray-700 rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#f97316] transition"
+            />
+          </div>
+
+          <button
+            (click)="buscar()"
+            class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-3 px-6 rounded-lg"
+          >
+            Buscar
+          </button>
+        </div>
+
+        <div class="flex items-center gap-3 flex-wrap">
+          <span class="text-gray-400 font-medium">Tipo:</span>
+          <button
+            (click)="cambiarFiltroTipo('todos')"
+            [ngClass]="{
+              'bg-[#f97316] text-white': filtroTipo === 'todos',
+              'bg-[#1e293b] text-gray-400 hover:bg-[#0b1220]': filtroTipo !== 'todos'
+            }"
+            class="px-4 py-2 rounded-lg border border-gray-700 transition"
+          >
+            Todos
+          </button>
+          <button
+            (click)="cambiarFiltroTipo('preventivo')"
+            [ngClass]="{
+              'bg-[#f97316] text-white': filtroTipo === 'preventivo',
+              'bg-[#1e293b] text-gray-400 hover:bg-[#0b1220]': filtroTipo !== 'preventivo'
+            }"
+            class="px-4 py-2 rounded-lg border border-gray-700 transition"
+          >
+            Preventivo
+          </button>
+          <button
+            (click)="cambiarFiltroTipo('correctivo')"
+            [ngClass]="{
+              'bg-[#f97316] text-white': filtroTipo === 'correctivo',
+              'bg-[#1e293b] text-gray-400 hover:bg-[#0b1220]': filtroTipo !== 'correctivo'
+            }"
+            class="px-4 py-2 rounded-lg border border-gray-700 transition"
+          >
+            Correctivo
+          </button>
+          <button
+            (click)="cambiarFiltroTipo('predictivo')"
+            [ngClass]="{
+              'bg-[#f97316] text-white': filtroTipo === 'predictivo',
+              'bg-[#1e293b] text-gray-400 hover:bg-[#0b1220]': filtroTipo !== 'predictivo'
+            }"
+            class="px-4 py-2 rounded-lg border border-gray-700 transition"
+          >
+            Predictivo
+          </button>
+        </div>
+      </div>
+
+      <!-- Grid de tarjetas (no provoca overflow horizontal) -->
+      @if (mantenimientosPaginados.length > 0) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (m of mantenimientosPaginados; track m.id_mantenimiento) {
+        <div
+          class="bg-[#1e293b] border border-gray-700 rounded-xl overflow-hidden hover:border-[#f97316] transition shadow-lg"
+        >
+          <div
+            class="relative h-40 bg-gradient-to-br from-[#0b1220] to-[#111827] overflow-hidden flex items-center justify-center"
+          >
+            <img
+              [src]="obtenerFotoUrl(m.foto)"
+              alt="mantenimiento"
+              class="w-full h-full object-cover"
+              onerror="this.src='/assets/images/mantenimiento-default.jpg'"
+            />
+            <div class="absolute inset-0 bg-black/20"></div>
+          </div>
+
+          <div class="p-4 space-y-3">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex-1">
+                <h3 class="text-lg font-bold text-white truncate">
+                  {{ m.tipo_mantenimiento | titlecase }}
+                </h3>
+                <p class="text-sm text-gray-500">ID: {{ m.id_mantenimiento }}</p>
+              </div>
+              <span class="px-3 py-1 rounded-full text-xs font-semibold text-gray-300 bg-[#0f172a]"
+                >#{{ m.programado || '—' }}</span
+              >
+            </div>
+
+            <div class="space-y-2 py-3 border-t border-gray-700">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-400">Fecha</span>
+                <span class="text-white font-medium">{{
+                  m.fecha_mantenimiento | date : 'dd/MM/yyyy'
+                }}</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-400">Horas</span>
+                <span class="text-white font-medium">{{ m.horas_realizadas }} h</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-400">Costo</span>
+                <span class="text-white font-medium">${{ m.costo | number }}</span>
+              </div>
+            </div>
+
+            <div class="flex gap-2 pt-3 border-t border-gray-700">
+              <button
+                (click)="verDetalle(m)"
+                class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg flex items-center justify-center gap-2 text-sm"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="inline-block"
+                >
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                Ver
+              </button>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+      } @else {
+      <div class="text-center py-12">
+        <p class="text-gray-400 text-lg">No hay mantenimientos registrados</p>
+      </div>
+      }
+
+      <!-- PAGINADOR -->
+      @if (totalPaginas > 1) {
+      <div class="flex items-center justify-center gap-4 mt-8 pt-6 border-t border-gray-700">
+        <button
+          (click)="irAPaginaAnterior()"
+          [disabled]="paginaActual === 1"
+          class="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-700 text-gray-400 hover:bg-[#0b1220] hover:text-white transition disabled:opacity-50"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M15 6l-6 6l6 6" />
+          </svg>
+        </button>
+
+        <div class="flex items-center gap-2">
+          <span class="text-gray-400">Página</span>
+          <input
+            type="text"
+            [value]="paginaActual"
+            readonly
+            class="w-12 h-10 text-center bg-[#0f172a] border border-gray-700 rounded-lg text-white font-semibold"
+          />
+          <span class="text-gray-400">de {{ totalPaginas }}</span>
+        </div>
+
+        <button
+          (click)="irAPaginaSiguiente()"
+          [disabled]="paginaActual === totalPaginas"
+          class="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-700 text-gray-400 hover:bg-[#0b1220] hover:text-white transition disabled:opacity-50"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M9 6l6 6l-6 6" />
+          </svg>
+        </button>
+      </div>
+      }
+    </section>
+  </main>
+</body>

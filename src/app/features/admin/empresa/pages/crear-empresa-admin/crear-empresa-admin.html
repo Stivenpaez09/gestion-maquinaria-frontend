@@ -1,0 +1,225 @@
+<body class="bg-[#0f172a] text-gray-200 min-h-screen flex">
+  <app-sidebar-admin></app-sidebar-admin>
+
+  <!-- =========================
+       MAIN AREA
+  ========================== -->
+  <main class="flex-1 flex flex-col">
+    <!-- =========================
+         HEADER SUPERIOR
+    ========================== -->
+    <header
+      class="h-16 bg-[#1e293b] flex items-center justify-between px-6 border-b py-11 border-gray-800"
+    >
+      <div>
+        <h1 class="text-xl font-bold">Agregar Empresa</h1>
+        <span class="text-sm text-gray-400">Registrar nueva empresa en el sistema</span>
+      </div>
+    </header>
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+    ========================== -->
+    <section class="p-6 flex-1 flex items-center justify-center">
+      <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 space-y-6 max-w-4xl w-full">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-semibold text-white">
+              Rellena los campos obligatorios y guarda.
+            </h2>
+          </div>
+          <div class="text-sm text-gray-400">
+            Campos marcados con <span class="text-red-500">*</span> son obligatorios
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Nombre -->
+          <div>
+            <label class="block text-sm font-medium text-gray-400 mb-2"
+              >Nombre <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              [(ngModel)]="empresaForm.nombre"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+              placeholder="Nombre de la empresa"
+            />
+            @if (errores['nombre']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['nombre'] }}</p>
+            }
+          </div>
+
+          <!-- NIT -->
+          <div>
+            <label class="block text-sm font-medium text-gray-400 mb-2"
+              >NIT <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              [(ngModel)]="empresaForm.nit"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+              placeholder="Solo dígitos, 5-20 caracteres"
+            />
+            @if (errores["nit"]) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['nit'] }}</p>
+            }
+          </div>
+
+          <!-- Dirección -->
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-400 mb-2"
+              >Dirección <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              [(ngModel)]="empresaForm.direccion"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+              placeholder="Dirección completa"
+            />
+            @if (errores['direccion']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['direccion'] }}</p>
+            }
+          </div>
+
+          <!-- Ciudad -->
+          <div>
+            <label class="block text-sm font-medium text-gray-400 mb-2"
+              >Ciudad <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              [(ngModel)]="empresaForm.ciudad"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+              placeholder="Ciudad"
+            />
+            @if (errores['ciudad']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['ciudad'] }}</p>
+            }
+          </div>
+
+          <!-- Departamento -->
+          <div>
+            <label class="block text-sm font-medium text-gray-400 mb-2"
+              >Departamento <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              [(ngModel)]="empresaForm.departamento"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+              placeholder="Departamento"
+            />
+            @if (errores['departamento']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['departamento'] }}</p>
+            }
+          </div>
+
+          <!-- Telefono -->
+          <div>
+            <label class="block text-sm font-medium text-gray-400 mb-2"
+              >Teléfono <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              [(ngModel)]="empresaForm.telefono"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+              placeholder="Sólo dígitos, 7-15 caracteres"
+            />
+            @if (errores['telefono']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['telefono'] }}</p>
+            }
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label class="block text-sm font-medium text-gray-400 mb-2"
+              >Email <span class="text-red-500">*</span></label
+            >
+            <input
+              type="email"
+              [(ngModel)]="empresaForm.email"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+              placeholder="correo@ejemplo.com"
+            />
+            @if (errores['email']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['email'] }}</p>
+            }
+          </div>
+
+          <!-- Representante Legal -->
+          <div>
+            <label class="block text-sm font-medium text-gray-400 mb-2"
+              >Representante legal <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              [(ngModel)]="empresaForm.representante_legal"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+              placeholder="Nombre del representante legal"
+            />
+            @if (errores['representante_legal']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['representante_legal'] }}</p>
+            }
+          </div>
+
+          <!-- Sector -->
+          <div>
+            <label class="block text-sm font-medium text-gray-400 mb-2"
+              >Sector económico <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              [(ngModel)]="empresaForm.sector"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+              placeholder="Sector (ej. Construcción, Transporte...)"
+            />
+            @if (errores['sector']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['sector'] }}</p>
+            }
+          </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="flex gap-3 justify-end pt-4">
+          <button
+            routerLink="/ver-empresas-admin"
+            class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg"
+          >
+            Cancelar
+          </button>
+
+          <button
+            (click)="crearEmpresa()"
+            [disabled]="cargando"
+            class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-2 px-6 rounded-lg flex items-center gap-2 disabled:opacity-60"
+          >
+            @if (cargando) {
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="#ffffff"
+              viewBox="0 0 256 256"
+            >
+              <path
+                d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm52-84a12,12,0,0,1-12,12H140v28a12,12,0,0,1-24,0V140H88a12,12,0,0,1,0-24h28V88a12,12,0,0,1,24,0v28h28A12,12,0,0,1,180,128Z"
+              ></path>
+            </svg>
+            Guardando... } @else {
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="#ffffff"
+              viewBox="0 0 256 256"
+            >
+              <path
+                d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm52-84a12,12,0,0,1-12,12H140v28a12,12,0,0,1-24,0V140H88a12,12,0,0,1,0-24h28V88a12,12,0,0,1,24,0v28h28A12,12,0,0,1,180,128Z"
+              ></path></svg
+            >Crear Empresa }
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>

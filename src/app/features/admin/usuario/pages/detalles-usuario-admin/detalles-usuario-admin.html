@@ -1,0 +1,648 @@
+<body class="bg-[#0f172a] text-gray-200 min-h-screen flex">
+  <app-sidebar-admin></app-sidebar-admin>
+
+  <main class="flex-1 flex flex-col overflow-hidden">
+    <!-- HEADER -->
+    <header
+      class="h-16 bg-[#1e293b] flex items-center justify-between px-6 border-b py-11 border-gray-800"
+    >
+      <div>
+        <h1 class="text-xl font-bold">Detalles de Usuario</h1>
+        <span class="text-sm text-gray-400">Información y gestión completa</span>
+      </div>
+      @if (usuario && !modoEdicion) {
+      <button
+        (click)="activarEdicion()"
+        [disabled]="cargando"
+        class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 text-base"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          fill="#ffffff"
+          viewBox="0 0 256 256"
+          class="inline-block mr-2"
+        >
+          <path
+            d="M230.15,70.54,185.46,25.86a20,20,0,0,0-28.28,0L33.86,149.17A19.86,19.86,0,0,0,28,163.31V208a20,20,0,0,0,20,20H216a12,12,0,0,0,0-24H125L230.15,98.83A20,20,0,0,0,230.15,70.54ZM91,204H52V165l84-84,39,39ZM192,103,153,64l18.34-18.34,39,39Z"
+          ></path>
+        </svg>
+        Editar
+      </button>
+      }
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <section class="flex-1 overflow-y-auto p-6 space-y-8">
+      @if (cargando) {
+      <div class="flex items-center justify-center h-full">
+        <div class="animate-spin">
+          <svg
+            class="w-12 h-12 text-[#f97316]"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+        </div>
+      </div>
+      } @else if (usuario) {
+      <!-- MODO VISTA -->
+      @if (!modoEdicion) {
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- FOTO -->
+        <div class="lg:col-span-1">
+          <div class="bg-[#1e293b] border border-gray-700 rounded-xl overflow-hidden">
+            <div class="relative h-64 bg-gradient-to-br from-[#0b1220] to-[#111827]">
+              <img
+                [src]="obtenerFotoUrl(usuario.foto)"
+                [alt]="usuario.nombre"
+                class="w-full h-full object-cover"
+                (error)="$event.target.src = '/assets/images/operador.jpg'"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- INFORMACIÓN PRINCIPAL -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Info Básica -->
+          <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 space-y-4">
+            <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="currentColor"
+                viewBox="0 0 256 256"
+              >
+                <path
+                  d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm52-84a12,12,0,0,1-12,12H140v28a12,12,0,0,1-24,0V140H88a12,12,0,0,1,0-24h28V88a12,12,0,0,1,24,0v28h28A12,12,0,0,1,180,128Z"
+                ></path>
+              </svg>
+              Información Principal
+            </h2>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-sm text-gray-400">ID de Usuario</p>
+                <p class="text-white font-semibold">{{ usuario.id_usuario }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-400">Nombre</p>
+                <p class="text-white font-semibold">{{ usuario.nombre }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-400">Cargo</p>
+                <p class="text-white font-semibold">{{ usuario.cargo }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-400">Email</p>
+                <p class="text-white font-semibold">{{ usuario.email || 'N/A' }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-400">Teléfono</p>
+                <p class="text-white font-semibold">{{ usuario.telefono || 'N/A' }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Información de Fechas -->
+          <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 space-y-4">
+            <h3 class="text-lg font-semibold text-white">Información de Fechas</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-sm text-gray-400">Fecha de Ingreso</p>
+                <p class="text-white font-semibold">
+                  {{ usuario.fecha_ingreso ? formatearFecha(usuario.fecha_ingreso) : 'N/A' }}
+                </p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-400">Registrado</p>
+                <p class="text-white font-semibold">
+                  {{ usuario.created_at | date : 'dd/MM/yyyy HH:mm' }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botones de Acción -->
+          <div class="flex gap-3">
+            <button
+              (click)="confirmarEliminar()"
+              class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path
+                  d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                ></path>
+              </svg>
+              Eliminar Usuario
+            </button>
+            <button
+              routerLink="/ver-usuarios-admin"
+              class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+            >
+              Volver
+            </button>
+          </div>
+        </div>
+
+        <!-- NUEVA TARJETA: LOGIN -->
+        <div
+          class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 space-y-4 lg:col-span-3 min-w-0 overflow-x-hidden"
+        >
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+              <svg
+                class="w-5 h-5 text-[#f97316]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M12 2v20M2 12h20" />
+              </svg>
+              Login
+            </h3>
+
+            <!-- if user already has login, hide add button; else show -->
+            <div *ngIf="!login">
+              <button
+                (click)="abrirCrearLogin()"
+                class="bg-[#f97316] hover:bg-[#ea580c] text-white px-4 py-2 rounded-lg"
+              >
+                + Agregar
+              </button>
+            </div>
+          </div>
+
+          <!-- show loading state -->
+          <div *ngIf="cargandoLogin" class="text-gray-400">Cargando login...</div>
+
+          <!-- if login exists show it -->
+          <div *ngIf="!cargandoLogin && login" class="mt-2">
+            <button
+              (click)="verDetalleLogin()"
+              class="bg-[#0b1220] border border-gray-700 rounded-lg p-4 hover:border-[#f97316] cursor-pointer transition-colors flex items-center justify-between w-full min-w-0"
+            >
+              <div class="min-w-0">
+                <p class="text-white font-semibold truncate text-left">
+                  {{ login.username }}
+                </p>
+                <p class="text-xs text-gray-400 truncate text-left">
+                  {{ login.rol }}
+                </p>
+              </div>
+              <div class="text-sm text-gray-400">Ver</div>
+            </button>
+          </div>
+
+          <!-- if no login and not loading -->
+          <div *ngIf="!cargandoLogin && !login" class="text-gray-400">
+            Este usuario aún no tiene un login asociado.
+          </div>
+
+          <!-- INLINE FORM: Crear login (aparece dentro de la misma tarjeta, debajo del botón) -->
+          <form
+            *ngIf="mostrarFormularioCrearLogin"
+            class="bg-[#0b172a] border border-gray-700 rounded-lg p-4 space-y-3 mt-4 min-w-0 overflow-x-hidden"
+            (ngSubmit)="crearLogin()"
+          >
+            <h4 class="text-md font-semibold text-white">Crear Login</h4>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="md:col-span-2">
+                <label class="block text-sm text-gray-300 mb-1"
+                  >Nombre de usuario <span class="text-red-500">*</span></label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="loginForm.username"
+                  name="username"
+                  class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-2 text-white"
+                />
+                <p *ngIf="erroresLogin['username']" class="text-red-500 text-xs mt-1">
+                  {{ erroresLogin['username'] }}
+                </p>
+              </div>
+
+              <div>
+                <label class="block text-sm text-gray-300 mb-1"
+                  >Contraseña <span class="text-red-500">*</span></label
+                >
+                <input
+                  type="password"
+                  [(ngModel)]="loginForm.password"
+                  name="password"
+                  class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-2 text-white"
+                />
+                <p *ngIf="erroresLogin['password']" class="text-red-500 text-xs mt-1">
+                  {{ erroresLogin['password'] }}
+                </p>
+              </div>
+
+              <div>
+                <label class="block text-sm text-gray-300 mb-1"
+                  >Rol <span class="text-red-500">*</span></label
+                >
+                <select
+                  [(ngModel)]="loginForm.rol"
+                  name="rol"
+                  class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-2 text-white"
+                >
+                  <option value="ADMIN">ADMIN</option>
+                  <option value="RESPONSABLE_DE_MANTENIMIENTO">RESPONSABLE_DE_MANTENIMIENTO</option>
+                  <option value="OPERADOR">OPERADOR</option>
+                  <option value="TECNICO_DE_MANTENIMIENTO">TECNICO_DE_MANTENIMIENTO</option>
+                </select>
+                <p *ngIf="erroresLogin['rol']" class="text-red-500 text-xs mt-1">
+                  {{ erroresLogin['rol'] }}
+                </p>
+              </div>
+
+              <div class="md:col-span-2 flex items-center gap-4">
+                <label class="inline-flex items-center text-sm text-gray-300">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="loginForm.is_active"
+                    name="is_active"
+                    class="h-4 w-4"
+                  />
+                  <span class="ml-2">Activo</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="flex gap-3 mt-2">
+              <button
+                type="button"
+                (click)="cerrarFormularioCrearLogin()"
+                class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                [disabled]="creandoLogin"
+                class="bg-[#f97316] hover:bg-[#ea580c] text-white px-4 py-2 rounded-lg"
+              >
+                {{ creandoLogin ? 'Creando...' : 'Crear Login' }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- NUEVA TARJETA: CURSOS -->
+        <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 space-y-4 lg:col-span-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+              <svg
+                class="w-5 h-5 text-[#f97316]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M12 2v20M2 12h20" />
+              </svg>
+              Cursos
+            </h3>
+
+            <button
+              (click)="abrirModalCrearCurso()"
+              class="bg-[#f97316] hover:bg-[#ea580c] text-white px-4 py-2 rounded-lg"
+            >
+              + Agregar
+            </button>
+          </div>
+
+          @if (cargandoCursos) {
+          <div class="text-gray-400">Cargando cursos...</div>
+          } @else { @if (cursos && cursos.length > 0) {
+          <ul class="space-y-3">
+            @for (c of cursos; track c.id_curso) {
+            <li>
+              <button
+                (click)="verDetalleCurso(c.id_curso)"
+                class="bg-[#0b1220] border border-gray-700 rounded-lg p-4 hover:border-[#f97316] cursor-pointer transition-colors flex items-center justify-between w-full"
+              >
+                <div class="min-w-0">
+                  <p class="text-white font-semibold truncate text-left">{{ c.nombre_curso }}</p>
+                  <p class="text-xs text-gray-400 truncate text-left">
+                    {{ c.institucion }} · {{ c.fecha_inicio | date : 'dd/MM/yyyy' }} -
+                    {{ c.fecha_fin | date : 'dd/MM/yyyy' }}
+                  </p>
+                </div>
+                <div class="text-sm text-gray-400">Ver</div>
+              </button>
+            </li>
+            }
+          </ul>
+          } @else {
+          <div class="text-gray-400">No hay cursos relacionados a este usuario.</div>
+          } }
+
+          <!-- FORMULARIO INLINE: Crear curso (desplegable) -->
+          @if (mostrarModalCrearCurso) {
+          <div class="bg-[#0b172a] border border-gray-700 rounded-lg p-4 space-y-3 mt-4">
+            <h4 class="text-md font-semibold text-white">Agregar Curso</h4>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="md:col-span-2">
+                <label class="block text-sm text-gray-300 mb-1"
+                  >Nombre del curso <span class="text-red-500">*</span></label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="cursoForm.nombre_curso"
+                  class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-2 text-white"
+                />
+                @if (erroresCurso['nombre_curso']) {
+                <p class="text-red-500 text-xs mt-1">{{ erroresCurso['nombre_curso'] }}</p>
+                }
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="block text-sm text-gray-300 mb-1"
+                  >Institución <span class="text-red-500">*</span></label
+                >
+                <input
+                  type="text"
+                  [(ngModel)]="cursoForm.institucion"
+                  class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-2 text-white"
+                />
+                @if (erroresCurso['institucion']) {
+                <p class="text-red-500 text-xs mt-1">{{ erroresCurso['institucion'] }}</p>
+                }
+              </div>
+
+              <div>
+                <label class="block text-sm text-gray-300 mb-1"
+                  >Fecha inicio <span class="text-red-500">*</span></label
+                >
+                <input
+                  type="date"
+                  [(ngModel)]="cursoForm.fecha_inicio"
+                  class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-2 text-white"
+                />
+                @if (erroresCurso['fecha_inicio']) {
+                <p class="text-red-500 text-xs mt-1">{{ erroresCurso['fecha_inicio'] }}</p>
+                }
+              </div>
+
+              <div>
+                <label class="block text-sm text-gray-300 mb-1"
+                  >Fecha fin <span class="text-red-500">*</span></label
+                >
+                <input
+                  type="date"
+                  [(ngModel)]="cursoForm.fecha_fin"
+                  class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-2 text-white"
+                />
+                @if (erroresCurso['fecha_fin']) {
+                <p class="text-red-500 text-xs mt-1">{{ erroresCurso['fecha_fin'] }}</p>
+                }
+              </div>
+            </div>
+
+            <div class="flex gap-3 mt-4">
+              <button
+                (click)="cerrarModalCrearCurso()"
+                class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg"
+              >
+                Cancelar
+              </button>
+              <button
+                (click)="crearCurso()"
+                [disabled]="creandoCurso"
+                class="bg-[#f97316] hover:bg-[#ea580c] text-white px-4 py-2 rounded-lg"
+              >
+                @if (creandoCurso) { Creando... } @else { Crear Curso }
+              </button>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+      } @else {
+      <!-- MODO EDICIÓN -->
+      <div class="max-w-3xl mx-auto space-y-6">
+        <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 space-y-4">
+          <h2 class="text-lg font-semibold text-white">Editar Usuario</h2>
+          <p class="text-sm text-gray-400">
+            Solo puedes editar: Nombre, Email, Teléfono y Fecha de Ingreso
+          </p>
+
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Nombre (EDITABLE) -->
+            <div>
+              <label class="block text-sm font-medium text-gray-400 mb-2">
+                Nombre <span class="text-red-500">*</span>
+                @if (camposModificados.has('nombre')) {
+                <span class="text-[#f97316] text-xs font-bold">(Modificado)</span>
+                }
+              </label>
+              <input
+                type="text"
+                [(ngModel)]="usuarioEditado.nombre"
+                (ngModelChange)="onCampoModificado('nombre')"
+                [ngClass]="{ 'border-red-500': tieneError('nombre') }"
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#f97316]"
+              />
+              @if (tieneError('nombre')) {
+              <p class="text-red-500 text-xs mt-1">{{ obtenerError('nombre') }}</p>
+              }
+            </div>
+
+            <!-- Email (EDITABLE) -->
+            <div>
+              <label class="block text-sm font-medium text-gray-400 mb-2">
+                Email <span class="text-red-500">*</span>
+                @if (camposModificados.has('email')) {
+                <span class="text-[#f97316] text-xs font-bold">(Modificado)</span>
+                }
+              </label>
+              <input
+                type="email"
+                [(ngModel)]="usuarioEditado.email"
+                (ngModelChange)="onCampoModificado('email')"
+                [ngClass]="{ 'border-red-500': tieneError('email') }"
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#f97316]"
+              />
+              @if (tieneError('email')) {
+              <p class="text-red-500 text-xs mt-1">{{ obtenerError('email') }}</p>
+              }
+            </div>
+
+            <!-- Teléfono (EDITABLE) -->
+            <div>
+              <label class="block text-sm font-medium text-gray-400 mb-2">
+                Teléfono <span class="text-red-500">*</span>
+                @if (camposModificados.has('telefono')) {
+                <span class="text-[#f97316] text-xs font-bold">(Modificado)</span>
+                }
+              </label>
+              <input
+                type="text"
+                [(ngModel)]="usuarioEditado.telefono"
+                (ngModelChange)="onCampoModificado('telefono')"
+                [ngClass]="{ 'border-red-500': tieneError('telefono') }"
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#f97316]"
+              />
+              @if (tieneError('telefono')) {
+              <p class="text-red-500 text-xs mt-1">{{ obtenerError('telefono') }}</p>
+              }
+            </div>
+
+            <!-- Fecha de Ingreso (EDITABLE) -->
+            <div>
+              <label class="block text-sm font-medium text-gray-400 mb-2">
+                Fecha de Ingreso <span class="text-red-500">*</span>
+                @if (camposModificados.has('fecha_ingreso')) {
+                <span class="text-[#f97316] text-xs font-bold">(Modificado)</span>
+                }
+              </label>
+              <input
+                type="date"
+                [value]="
+                  usuarioEditado.fecha_ingreso ? usuarioEditado.fecha_ingreso.split('T')[0] : ''
+                "
+                (change)="
+                  usuarioEditado.fecha_ingreso = $any($event.target).value;
+                  onCampoModificado('fecha_ingreso')
+                "
+                [ngClass]="{ 'border-red-500': tieneError('fecha_ingreso') }"
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#f97316]"
+              />
+              @if (tieneError('fecha_ingreso')) {
+              <p class="text-red-500 text-xs mt-1">{{ obtenerError('fecha_ingreso') }}</p>
+              }
+            </div>
+          </div>
+
+          <!-- Información de campos no editables -->
+          <div class="bg-[#0b1220] border border-gray-700 rounded-lg p-4 space-y-2">
+            <p class="text-sm text-gray-400 font-semibold">Campos no editables:</p>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p class="text-gray-500">ID Usuario:</p>
+                <p class="text-white font-medium">{{ usuario.id_usuario }}</p>
+              </div>
+              <div>
+                <p class="text-gray-500">Cargo:</p>
+                <p class="text-white font-medium">{{ usuario.cargo }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botones -->
+          <div class="flex gap-3 pt-6">
+            <button
+              (click)="cancelarEdicion()"
+              class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              (click)="guardarEdicion()"
+              [disabled]="cargandoEdicion || camposModificados.size === 0"
+              class="flex-1 bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              @if (cargandoEdicion) {
+              <svg
+                class="animate-spin h-5 w-5"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+              </svg>
+              Guardando... } @else { Guardar Cambios }
+            </button>
+          </div>
+        </div>
+      </div>
+      } }
+    </section>
+  </main>
+
+  <!-- MODAL CONFIRMACIÓN ELIMINAR -->
+  @if (mostrarConfirmacionEliminar) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 max-w-md w-full mx-4 space-y-4">
+      <h2 class="text-xl font-bold text-white">Confirmar eliminación</h2>
+      <p class="text-gray-400">
+        ¿Estás seguro de que deseas eliminar al usuario
+        <strong>{{ usuario?.nombre }}</strong
+        >? Esta acción no se puede deshacer.
+      </p>
+      <div class="flex gap-3">
+        <button
+          (click)="cancelarEliminacion()"
+          class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
+        >
+          Cancelar
+        </button>
+        <button
+          (click)="eliminarUsuario()"
+          [disabled]="cargandoEliminacion"
+          class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+        >
+          @if (cargandoEliminacion) {
+          <svg
+            class="animate-spin h-5 w-5"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+          </svg>
+          Eliminando... } @else { Eliminar }
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- modal removed: using inline collapsible form inside the Cursos card -->
+</body>

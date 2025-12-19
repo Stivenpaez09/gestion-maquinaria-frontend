@@ -38,9 +38,6 @@ export class Login {
           if (rol === 'ADMIN') {
             this.router.navigate(['/dashboard-admin']);
           }
-          if (rol === 'ASISTENTE') {
-            this.router.navigate(['/dashboard-asistente']);
-          }
           if (rol === 'RESPONSABLE_DE_MANTENIMIENTO') {
             this.router.navigate(['/dashboard-responsable']);
           }
@@ -52,7 +49,8 @@ export class Login {
           }
         },
         error: (err) => {
-          this.loginError = err.error?.message || 'Error al inciar sesion';
+          this.loginError = err.error?.message || 'Error al inciar sesion, intentelo de nuevo';
+          this.isLoading = false;
         },
       });
     } else {

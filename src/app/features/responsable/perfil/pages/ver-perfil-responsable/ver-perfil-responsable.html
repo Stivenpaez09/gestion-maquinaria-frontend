@@ -1,0 +1,107 @@
+<body class="bg-[#0f172a] text-gray-200 min-h-screen flex">
+  <!-- SIDEBAR (igual al anterior, completo) -->
+  <app-sidebar-responsable></app-sidebar-responsable>
+
+  <main class="flex-1 flex flex-col overflow-hidden">
+    <!-- HEADER -->
+    <header
+      class="h-16 bg-[#1e293b] flex items-center justify-between px-6 border-b py-11 border-gray-800"
+    >
+      <div>
+        <h1 class="text-xl font-bold">Detalles de Usuario</h1>
+        <span class="text-sm text-gray-400">Información y gestión completa</span>
+      </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <section class="flex-1 overflow-y-auto p-6 space-y-8">
+      <!-- MODO VISTA -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- FOTO -->
+        <div class="lg:col-span-1">
+          <div class="bg-[#1e293b] border border-gray-700 rounded-xl overflow-hidden">
+            <div class="relative h-64 bg-gradient-to-br from-[#0b1220] to-[#111827]">
+              <img
+                [src]="obtenerFotoUrl()"
+                [alt]="usuario?.nombre"
+                class="w-full h-full object-cover"
+                (error)="$event.target.src = '/assets/images/operador.jpg'"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- INFORMACIÓN PRINCIPAL -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Info Básica -->
+          <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 space-y-4">
+            <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="currentColor"
+                viewBox="0 0 256 256"
+              >
+                <path
+                  d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm52-84a12,12,0,0,1-12,12H140v28a12,12,0,0,1-24,0V140H88a12,12,0,0,1,0-24h28V88a12,12,0,0,1,24,0v28h28A12,12,0,0,1,180,128Z"
+                ></path>
+              </svg>
+              Información Principal
+            </h2>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-sm text-gray-400">ID de Usuario</p>
+                <p class="text-white font-semibold">{{ usuario?.id_usuario }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-400">Nombre</p>
+                <p class="text-white font-semibold">{{ usuario?.nombre }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-400">Cargo</p>
+                <p class="text-white font-semibold">{{ usuario?.cargo }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-400">Email</p>
+                <p class="text-white font-semibold">{{ usuario?.email || 'N/A' }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-400">Teléfono</p>
+                <p class="text-white font-semibold">{{ usuario?.telefono || 'N/A' }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-400">Usuario</p>
+                <p class="text-white font-semibold">{{ loginUsername || 'General' }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-400">Rol</p>
+                <p class="text-white font-semibold">{{ loginRol || 'General' }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Información de Fechas -->
+          <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 space-y-4">
+            <h3 class="text-lg font-semibold text-white">Información de Fechas</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-sm text-gray-400">Fecha de Ingreso</p>
+                <p class="text-white font-semibold">
+                  {{ usuario?.fecha_ingreso ? formatearFecha(usuario?.fecha_ingreso) : 'N/A' }}
+                </p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-400">Registrado</p>
+                <p class="text-white font-semibold">
+                  {{ usuario?.created_at | date : 'dd/MM/yyyy HH:mm' }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>

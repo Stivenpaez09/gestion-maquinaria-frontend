@@ -1,0 +1,215 @@
+<body class="bg-[#0f172a] text-gray-200 min-h-screen flex">
+  <app-sidebar-operador></app-sidebar-operador>
+
+  <!-- =========================
+       MAIN AREA
+  ========================== -->
+  <main class="flex-1 flex flex-col">
+    <!-- =========================
+         HEADER SUPERIOR
+    ========================== -->
+    <header
+      class="h-16 bg-[#1e293b] flex items-center justify-between px-6 border-b py-11 border-gray-800"
+    >
+      <div>
+        <h1 class="text-xl font-bold">Gestión de Registro de Horas</h1>
+        <span class="text-sm text-gray-400">Administracion y control de horas de trabajo</span>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <button
+          class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 text-base"
+          routerLink="/crear-registro-horas-maquinaria-admin"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="#ffffff"
+            viewBox="0 0 256 256"
+          >
+            <path
+              d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm52-84a12,12,0,0,1-12,12H140v28a12,12,0,0,1-24,0V140H88a12,12,0,0,1,0-24h28V88a12,12,0,0,1,24,0v28h28A12,12,0,0,1,180,128Z"
+            ></path>
+          </svg>
+          Crear Registro
+        </button>
+      </div>
+    </header>
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+    ========================== -->
+    <section class="p-6 space-y-8">
+      <!-- BUSCADOR -->
+      <div class="flex gap-3">
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (keyup)="buscar()"
+          placeholder="Ingresa el nombre del proyecto..."
+          class="flex-1 bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#f97316] focus:border-transparent transition"
+        />
+        <button
+          (click)="buscar()"
+          class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center gap-2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+          Buscar
+        </button>
+      </div>
+
+      <!-- LISTA DE REGISTROS -->
+      @if (cargando) {
+      <div class="flex items-center justify-center h-64">
+        <div class="animate-spin">
+          <svg
+            class="w-12 h-12 text-[#f97316]"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+        </div>
+      </div>
+      } @else if (registrosFiltrados.length > 0) {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @for (registro of registrosFiltrados; track registro.id_registro) {
+        <div
+          class="bg-[#1e293b] border border-gray-700 rounded-xl overflow-hidden hover:border-[#f97316] transition-colors duration-300 hover:shadow-lg hover:shadow-[#f97316]/10"
+        >
+          <!-- Header del Card -->
+          <div class="bg-gradient-to-r from-[#0b1220] to-[#111827] p-6 border-b border-gray-700">
+            <h3 class="text-lg font-bold text-white truncate">
+              {{ registro.proyectoData?.nombre_proyecto || 'Sin Proyecto' }}
+            </h3>
+            <p class="text-sm text-gray-500 mt-1">ID: {{ registro.id_registro }}</p>
+          </div>
+
+          <!-- Contenido -->
+          <div class="p-6 space-y-4">
+            <!-- Máquina -->
+            @if (registro.maquinariaData) {
+            <div>
+              <p class="text-xs text-gray-500 font-semibold mb-1">MÁQUINA</p>
+              <p class="text-gray-300 text-sm">
+                {{ registro.maquinariaData.nombre_maquina }}
+                @if (registro.maquinariaData.marca) {
+                <span class="text-gray-500"> - {{ registro.maquinariaData.marca }}</span>
+                }
+              </p>
+            </div>
+            }
+
+            <!-- Descripción del Proyecto -->
+            @if (registro.proyectoData?.descripcion) {
+            <div>
+              <p class="text-xs text-gray-500 font-semibold mb-1">DESCRIPCIÓN</p>
+              <p class="text-gray-300 text-sm line-clamp-2">
+                {{ registro.proyectoData?.descripcion }}
+              </p>
+            </div>
+            }
+
+            <!-- Información del Registro -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-xs text-gray-500 font-semibold mb-1">FECHA</p>
+                <p class="text-white font-medium">{{ formatearFecha(registro.fecha) }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500 font-semibold mb-1">HORAS</p>
+                <p class="text-white font-medium">{{ registro.horas_trabajadas }} h</p>
+              </div>
+            </div>
+
+            <!-- Observaciones -->
+            @if (registro.observaciones) {
+            <div>
+              <p class="text-xs text-gray-500 font-semibold mb-1">OBSERVACIONES</p>
+              <p class="text-gray-300 text-sm line-clamp-2">{{ registro.observaciones }}</p>
+            </div>
+            }
+          </div>
+
+          <!-- Acciones -->
+          <div class="bg-[#0b1220] border-t border-gray-700 px-6 py-4 flex gap-3">
+            <button
+              routerLink="/detalles-registro-horas-maquinaria-operador/{{ registro.id_registro }}"
+              class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-lg transition-colors text-sm flex items-center justify-center gap-2"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              Ver
+            </button>
+          </div>
+        </div>
+        }
+      </div>
+      } @else {
+      <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-12 text-center">
+        <h3 class="text-xl font-semibold text-white mb-2">No hay registros</h3>
+        <p class="text-gray-400 mb-6">
+          @if (searchTerm) { No se encontraron registros que coincidan con tu búsqueda } @else {
+          Comienza creando tu primer registro de horas }
+        </p>
+        <button
+          routerLink="/crear-registro-horas-maquinaria-admin"
+          class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-3 px-6 rounded-lg transition-colors inline-flex items-center gap-2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="#ffffff"
+            viewBox="0 0 256 256"
+          >
+            <path
+              d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm52-84a12,12,0,0,1-12,12H140v28a12,12,0,0,1-24,0V140H88a12,12,0,0,1,0-24h28V88a12,12,0,0,1,24,0v28h28A12,12,0,0,1,180,128Z"
+            ></path>
+          </svg>
+          Crear Registro
+        </button>
+      </div>
+      }
+    </section>
+  </main>
+</body>

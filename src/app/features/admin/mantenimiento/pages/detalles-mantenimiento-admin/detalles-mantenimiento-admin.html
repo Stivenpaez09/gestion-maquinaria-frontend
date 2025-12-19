@@ -1,0 +1,325 @@
+<body class="bg-[#0f172a] text-gray-200 min-h-screen flex w-full overflow-x-hidden">
+  <app-sidebar-admin></app-sidebar-admin>
+
+  <main class="flex-1 min-w-0 flex flex-col overflow-y-auto overflow-x-hidden box-border">
+    <!-- HEADER -->
+    <header
+      class="h-16 bg-[#1e293b] flex items-center justify-between px-6 border-b border-gray-800 w-full box-border"
+    >
+      <div>
+        <h1 class="text-xl font-bold">Detalles de Mantenimiento</h1>
+        <span class="text-sm text-gray-400">Gestionar mantenimiento en el sistema</span>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <button
+          (click)="activarEdicion()"
+          [disabled]="cargando || !mantenimiento"
+          class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-2 px-4 rounded-lg disabled:opacity-50"
+        >
+          Editar
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <section class="p-6 w-full box-border overflow-x-hidden flex flex-1">
+      <div *ngIf="cargando" class="flex items-center justify-center w-full h-64">
+        <svg
+          class="animate-spin w-12 h-12 text-[#f97316]"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+          ></path>
+        </svg>
+      </div>
+
+      <div
+        *ngIf="!cargando && mantenimiento"
+        class="max-w-6xl w-full mx-auto min-w-0 flex justify-center items-center"
+      >
+        <div
+          class="bg-[#1e293b] border border-gray-700 rounded-2xl p-6 shadow-lg min-w-0 overflow-x-hidden"
+        >
+          <!-- Show either VIEW or EDIT exclusively -->
+          <ng-container *ngIf="!modoEdicion; else editarBlock">
+            <!-- VIEW: información del mantenimiento (oculto cuando modoEdicion=true) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start min-w-0">
+              <!-- FOTO -->
+              <div class="md:col-span-1 min-w-0">
+                <div class="rounded-lg overflow-hidden border border-gray-700 bg-[#0b1220] h-full">
+                  <div class="h-64 md:h-full w-full">
+                    <img
+                      [src]="obtenerFotoUrl(mantenimiento.foto)"
+                      alt="foto"
+                      class="w-full h-full object-cover block max-w-full"
+                      onError="this.src='/assets/images/mantenimiento-default.jpg'"
+                    />
+                  </div>
+                  <div class="p-4">
+                    <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Estado Actual</p>
+                    <span
+                      class="inline-block bg-[#0b1220] text-[#93c5fd] px-3 py-1 rounded-full text-sm font-semibold"
+                      >OPERATIVA</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <!-- INFORMACIÓN PRINCIPAL -->
+              <div class="md:col-span-2 flex flex-col gap-4 min-w-0">
+                <div class="flex items-start justify-between">
+                  <div class="min-w-0">
+                    <h2 class="text-2xl font-bold text-white">
+                      {{ mantenimiento.tipo_mantenimiento | titlecase }} — ID #{{
+                        mantenimiento.id_mantenimiento
+                      }}
+                    </h2>
+                    <p class="text-sm text-gray-400 mt-1">
+                      Máquina:
+                      <span class="font-semibold text-gray-200">{{
+                        maquinaObj?.nombre_maquina || 'ID ' + mantenimiento.maquina
+                      }}</span>
+                    </p>
+                    <p class="text-sm text-gray-400 mt-1">
+                      Responsable:
+                      <span class="font-semibold text-gray-200">{{
+                        usuarioObj?.nombre ||
+                          (mantenimiento.usuario ? 'ID ' + mantenimiento.usuario : 'N/A')
+                      }}</span>
+                    </p>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 min-w-0">
+                  <div class="bg-[#111827] p-4 rounded-lg border border-gray-700 min-w-0">
+                    <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Fecha</p>
+                    <p class="text-white font-semibold">
+                      {{ mantenimiento.fecha_mantenimiento | date : 'dd/MM/yyyy' }}
+                    </p>
+                  </div>
+
+                  <div class="bg-[#111827] p-4 rounded-lg border border-gray-700 min-w-0">
+                    <p class="text-xs text-gray-500 font-semibold uppercase mb-2">
+                      Horas realizadas
+                    </p>
+                    <p class="text-white font-semibold">{{ mantenimiento.horas_realizadas }} h</p>
+                  </div>
+
+                  <div class="bg-[#111827] p-4 rounded-lg border border-gray-700 min-w-0">
+                    <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Costo</p>
+                    <p class="text-white font-semibold">${{ mantenimiento.costo | number }}</p>
+                  </div>
+
+                  <div class="bg-[#111827] p-4 rounded-lg border border-gray-700 min-w-0">
+                    <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Programado</p>
+                    <p class="text-white font-semibold">{{ mantenimiento.programado || 'N/A' }}</p>
+                  </div>
+
+                  <div
+                    class="sm:col-span-2 bg-[#111827] p-4 rounded-lg border border-gray-700 min-w-0"
+                  >
+                    <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Descripción</p>
+                    <p class="text-white">{{ mantenimiento.descripcion || 'Sin descripción' }}</p>
+                  </div>
+                </div>
+
+                <div class="border-t border-gray-700 pt-4 mt-2">
+                  <p class="text-xs text-gray-500 mb-1">
+                    Creado: {{ mantenimiento.created_at | date : 'dd/MM/yyyy HH:mm' }}
+                  </p>
+                  <p class="text-xs text-gray-500">
+                    Actualizado: {{ mantenimiento.updated_at | date : 'dd/MM/yyyy HH:mm' }}
+                  </p>
+                </div>
+
+                <div class="flex gap-4 mt-4">
+                  <button
+                    (click)="confirmarEliminar()"
+                    class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      class="inline-block"
+                    >
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path
+                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                      ></path>
+                    </svg>
+                    Eliminar Mantenimiento
+                  </button>
+                  <button
+                    (click)="navegarALista()"
+                    class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 rounded-lg"
+                  >
+                    Volver
+                  </button>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- EDIT BLOCK (renderizado solo cuando modoEdicion=true) -->
+          <ng-template #editarBlock>
+            <div class="w-full max-w-full min-w-0">
+              <h2 class="text-2xl font-bold text-white mb-2">Editar Mantenimiento</h2>
+              <p class="text-sm text-gray-400 mb-4">
+                ID, tipo, relaciones y foto no son editables aquí.
+              </p>
+
+              <form
+                class="space-y-4 w-full max-w-full min-w-0 overflow-x-hidden"
+                (ngSubmit)="guardarCambios()"
+              >
+                <div>
+                  <label class="block text-sm text-gray-300 mb-2">ID</label>
+                  <input
+                    type="text"
+                    [value]="mantenimiento.id_mantenimiento"
+                    disabled
+                    class="w-full max-w-full box-border bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-gray-300"
+                  />
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0">
+                  <div>
+                    <label class="block text-sm text-gray-300 mb-2"
+                      >Fecha <span class="text-red-500">*</span></label
+                    >
+                    <input
+                      type="date"
+                      [(ngModel)]="form.fecha_mantenimiento"
+                      name="fecha_mantenimiento"
+                      class="w-full max-w-full box-border bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+                    />
+                    <p *ngIf="errores['fecha_mantenimiento']" class="text-red-500 text-xs mt-1">
+                      {{ errores['fecha_mantenimiento'] }}
+                    </p>
+                  </div>
+
+                  <div>
+                    <label class="block text-sm text-gray-300 mb-2"
+                      >Horas realizadas <span class="text-red-500">*</span></label
+                    >
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      [(ngModel)]="form.horas_realizadas"
+                      name="horas_realizadas"
+                      class="w-full max-w-full box-border bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+                    />
+                    <p *ngIf="errores['horas_realizadas']" class="text-red-500 text-xs mt-1">
+                      {{ errores['horas_realizadas'] }}
+                    </p>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm text-gray-300 mb-2"
+                    >Costo <span class="text-red-500">*</span></label
+                  >
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    [(ngModel)]="form.costo"
+                    name="costo"
+                    class="w-full max-w-full box-border bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+                  />
+                  <p *ngIf="errores['costo']" class="text-red-500 text-xs mt-1">
+                    {{ errores['costo'] }}
+                  </p>
+                </div>
+
+                <div>
+                  <label class="block text-sm text-gray-300 mb-2"
+                    >Descripción <span class="text-red-500">*</span></label
+                  >
+                  <textarea
+                    rows="4"
+                    [(ngModel)]="form.descripcion"
+                    name="descripcion"
+                    class="w-full max-w-full box-border bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white resize-none"
+                  ></textarea>
+                  <p *ngIf="errores['descripcion']" class="text-red-500 text-xs mt-1">
+                    {{ errores['descripcion'] }}
+                  </p>
+                </div>
+
+                <div class="flex gap-4 mt-6">
+                  <button
+                    type="button"
+                    (click)="cancelarEdicion()"
+                    class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 rounded-lg"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    [disabled]="cargandoOperacion"
+                    class="flex-1 bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-3 rounded-lg"
+                  >
+                    <span *ngIf="cargandoOperacion">Guardando...</span>
+                    <span *ngIf="!cargandoOperacion">Guardar cambios</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL CONFIRMACIÓN ELIMINAR -->
+  <div
+    *ngIf="mostrarConfirmacionEliminar"
+    class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+  >
+    <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 max-w-md w-full mx-4 space-y-4">
+      <h2 class="text-xl font-bold text-white">Confirmar eliminación</h2>
+      <p class="text-gray-400">
+        ¿Estás seguro de que deseas eliminar este mantenimiento? Esta acción no se puede deshacer.
+      </p>
+      <div class="flex gap-3">
+        <button
+          (click)="cancelarEliminacion()"
+          class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 rounded-lg"
+        >
+          Cancelar
+        </button>
+        <button
+          (click)="eliminarMantenimiento()"
+          [disabled]="cargandoEliminacion"
+          class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg"
+        >
+          <span *ngIf="cargandoEliminacion">Eliminando...</span>
+          <span *ngIf="!cargandoEliminacion">Eliminar</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</body>

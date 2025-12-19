@@ -1,0 +1,292 @@
+<body class="bg-[#0f172a] text-gray-200 min-h-screen flex">
+  <!-- SIDEBAR (igual al anterior, completo) -->
+  <app-sidebar-operador></app-sidebar-operador>
+
+  <main class="flex-1 flex flex-col overflow-hidden">
+    <!-- HEADER -->
+    <header
+      class="h-16 bg-[#1e293b] flex items-center justify-between px-6 border-b py-11 border-gray-800"
+    >
+      <div>
+        <h1 class="text-xl font-bold">Detalles de Maquinaria</h1>
+        <span class="text-sm text-gray-400">Información y gestión completa</span>
+      </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <section class="flex-1 overflow-y-auto p-6 space-y-8">
+      @if (cargando) {
+      <div class="flex items-center justify-center h-full">
+        <div class="animate-spin">
+          <svg
+            class="w-12 h-12 text-[#f97316]"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+        </div>
+      </div>
+      } @else if (maquinaria) {
+      <!-- MODO VISTA -->
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- FOTO Y ESTADO -->
+        <div class="lg:col-span-1">
+          <div class="bg-[#1e293b] border border-gray-700 rounded-xl overflow-hidden">
+            <div class="relative h-64 bg-gradient-to-br from-[#0b1220] to-[#111827]">
+              <img
+                [src]="obtenerFotoUrl(maquinaria.foto)"
+                [alt]="maquinaria.nombre_maquina"
+                class="w-full h-full object-cover"
+                onError="this.src='assets/images/maquina-default.jpeg'"
+              />
+            </div>
+            <div class="p-6 space-y-4">
+              <div>
+                <p class="text-sm text-gray-400">Estado Actual</p>
+                <span
+                  [ngClass]="obtenerClasesEstado(maquinaria.estado)"
+                  class="inline-block px-4 py-2 rounded-full text-sm font-semibold mt-2"
+                >
+                  {{ maquinaria.estado | uppercase }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- INFORMACIÓN PRINCIPAL -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Info Básica -->
+          <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 space-y-4">
+            <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="currentColor"
+                viewBox="0 0 256 256"
+              >
+                <path
+                  d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm52-84a12,12,0,0,1-12,12H140v28a12,12,0,0,1-24,0V140H88a12,12,0,0,1,0-24h28V88a12,12,0,0,1,24,0v28h28A12,12,0,0,1,180,128Z"
+                ></path>
+              </svg>
+              Información Principal
+            </h2>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-sm text-gray-400">ID de Maquinaria</p>
+                <p class="text-white font-semibold">{{ maquinaria.id_maquina }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-400">Nombre</p>
+                <p class="text-white font-semibold">{{ maquinaria.nombre_maquina }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-400">Tipo / Modelo</p>
+                <p class="text-white font-semibold">{{ maquinaria.modelo || 'N/A' }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-400">Marca</p>
+                <p class="text-white font-semibold">{{ maquinaria.marca || 'N/A' }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-400">Número de Serie</p>
+                <p class="text-white font-semibold">{{ maquinaria.serie || 'N/A' }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-400">Horas Totales</p>
+                <p class="text-white font-semibold">
+                  {{ maquinaria.horas_totales | number : '1.2-2' }} h
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Información de Fechas -->
+          <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 space-y-4">
+            <h3 class="text-lg font-semibold text-white">Información de Fechas</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-sm text-gray-400">Fecha de Adquisición</p>
+                <p class="text-white font-semibold">
+                  {{
+                    maquinaria.fecha_adquisicion
+                      ? (maquinaria.fecha_adquisicion | date : 'dd/MM/yyyy')
+                      : 'N/A'
+                  }}
+                </p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-400">Registrado</p>
+                <p class="text-white font-semibold">
+                  {{ maquinaria.created_at | date : 'dd/MM/yyyy HH:mm' }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botones de Acción -->
+          <div class="flex gap-3">
+            <button
+              routerLink="/ver-maquinarias-operador"
+              class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+            >
+              Volver
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="#ffffff"
+              viewBox="0 0 256 256"
+            >
+              <path
+                d="M232,116H219.22A91.1,91.1,0,0,0,213,92.79l11.08-6.4a12,12,0,1,0-12-20.78L201,72a92.85,92.85,0,0,0-17-17l6.41-11.11a12,12,0,1,0-20.78-12L163.21,43A91.1,91.1,0,0,0,140,36.78V24a12,12,0,0,0-24,0V36.78A91.1,91.1,0,0,0,92.79,43l-6.4-11.08a12,12,0,0,0-20.78,12L72,55A92.85,92.85,0,0,0,55,72L43.93,65.61a12,12,0,0,0-12,20.78L43,92.79A91.1,91.1,0,0,0,36.78,116H24a12,12,0,0,0,0,24H36.78A91.1,91.1,0,0,0,43,163.21l-11.08,6.4a12,12,0,1,0,12,20.78L55,184a92.85,92.85,0,0,0,17,17l-6.41,11.11a12,12,0,1,0,20.78,12L92.79,213A91.1,91.1,0,0,0,116,219.22V232a12,12,0,0,0,24,0V219.22A91.1,91.1,0,0,0,163.21,213l6.4,11.08a12,12,0,0,0,20.78-12L184,201a92.85,92.85,0,0,0,17-17l11.11,6.41a12,12,0,1,0,12-20.78L213,163.21A91.1,91.1,0,0,0,219.22,140H232a12,12,0,0,0,0-24ZM128,60a68.1,68.1,0,0,1,66.92,56h-60l-30-52A67.61,67.61,0,0,1,128,60ZM60,128A67.9,67.9,0,0,1,84.16,76.07l30,51.93-30,51.93A67.9,67.9,0,0,1,60,128Zm68,68a67.61,67.61,0,0,1-23.07-4l30-52h60A68.1,68.1,0,0,1,128,196Z"
+              ></path>
+            </svg>
+            Mantenimientos Programados
+          </h2>
+        </div>
+
+        <!-- LISTA DE MANTENIMIENTOS -->
+        @if (cargandoMantenimientos) {
+        <div class="flex items-center justify-center py-6">
+          <svg
+            class="animate-spin w-8 h-8 text-[#f97316]"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+            ></path>
+          </svg>
+        </div>
+        } @else if (mantenimientos && mantenimientos.length > 0) {
+        <div class="space-y-3">
+          @for (m of mantenimientos; track m.id_programado) {
+          <div
+            (click)="abrirDetalleMantenimiento(m.id_programado)"
+            class="bg-[#0b1220] border border-gray-700 rounded-lg p-4 hover:border-[#f97316] cursor-pointer transition-colors flex items-center justify-between"
+          >
+            <div>
+              <p class="text-white font-semibold">{{ m.nombre }}</p>
+              <p class="text-sm text-gray-400">
+                {{ m.tipo | titlecase }} · Intervalo: {{ m.intervalo_horas }} h
+              </p>
+            </div>
+            <div class="text-sm text-gray-400">Ver</div>
+          </div>
+          }
+        </div>
+        } @else {
+        <p class="text-gray-400 text-center py-4">
+          No hay mantenimientos programados para esta máquina.
+        </p>
+        }
+      </div>
+
+      <!-- SECCIÓN DE HOJAS DE VIDA -->
+      <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 space-y-6">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="currentColor"
+              viewBox="0 0 256 256"
+            >
+              <path
+                d="M200,24H56A20,20,0,0,0,36,44V216a20,20,0,0,0,20,20H200a20,20,0,0,0,20-20V44A20,20,0,0,0,200,24Zm-4,188H60V48H196ZM92,88h72a12,12,0,0,1,0,24H92a12,12,0,0,1,0-24Zm0,48h72a12,12,0,0,1,0,24H92a12,12,0,0,1,0-24Z"
+              ></path>
+            </svg>
+            Hojas de Vida
+          </h2>
+        </div>
+
+        <!-- LISTA DE HOJAS DE VIDA -->
+        @if (hojasVida.length > 0) {
+        <div class="space-y-3">
+          @for (hoja of hojasVida; track hoja.id_hoja) {
+          <div
+            class="bg-[#0b1220] border border-gray-700 rounded-lg p-4 flex items-start justify-between"
+          >
+            <div class="flex-1">
+              <p class="text-white font-semibold mb-1">{{ hoja.descripcion }}</p>
+              <p class="text-gray-400 text-sm">
+                {{ hoja.fecha_registro | date : 'dd/MM/yyyy' }} - Registrado:
+                {{ hoja.created_at | date : 'dd/MM/yyyy HH:mm' }}
+              </p>
+            </div>
+
+            <div class="flex items-center gap-2 ml-4">
+              <!-- Descargar -->
+              <a
+                *ngIf="hoja.archivo"
+                [href]="obtenerArchivoUrl(hoja.archivo)"
+                download
+                target="_blank"
+                rel="noopener"
+                class="bg-green-600 hover:bg-green-700 text-white p-2 rounded-lg transition-colors"
+                title="Descargar"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="#ffffff"
+                  viewBox="0 0 256 256"
+                  class="inline-block"
+                >
+                  <path
+                    d="M228,144v64a12,12,0,0,1-12,12H40a12,12,0,0,1-12-12V144a12,12,0,0,1,24,0v52H204V144a12,12,0,0,1,24,0Zm-108.49,8.49a12,12,0,0,0,17,0l40-40a12,12,0,0,0-17-17L140,115V32a12,12,0,0,0-24,0v83L96.49,95.51a12,12,0,0,0-17,17Z"
+                  ></path>
+                </svg>
+                Descargar
+              </a>
+            </div>
+          </div>
+          }
+        </div>
+        } @else {
+        <p class="text-gray-400 text-center py-8">No hay hojas de vida registradas</p>
+        }
+      </div>
+      }
+    </section>
+  </main>
+</body>

@@ -1,0 +1,193 @@
+<body class="bg-[#0f172a] text-gray-200 min-h-screen flex">
+  <!-- SIDEBAR (igual al anterior, completo) -->
+  <app-sidebar-admin></app-sidebar-admin>
+
+  <main class="flex-1 flex flex-col overflow-hidden">
+    <!-- HEADER -->
+    <header
+      class="h-16 bg-[#1e293b] flex items-center justify-between px-6 border-b py-11 border-gray-800"
+    >
+      <div>
+        <h1 class="text-xl font-bold">Detalles de Curso</h1>
+        <span class="text-sm text-gray-400">Información de curso y gestión completa</span>
+      </div>
+      @if (curso && !modoEdicion) {
+      <button
+        (click)="activarEdicion()"
+        [disabled]="cargando"
+        class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 text-base"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          fill="#ffffff"
+          viewBox="0 0 256 256"
+          class="inline-block mr-2"
+        >
+          <path
+            d="M230.15,70.54,185.46,25.86a20,20,0,0,0-28.28,0L33.86,149.17A19.86,19.86,0,0,0,28,163.31V208a20,20,0,0,0,20,20H216a12,12,0,0,0,0-24H125L230.15,98.83A20,20,0,0,0,230.15,70.54ZM91,204H52V165l84-84,39,39ZM192,103,153,64l18.34-18.34,39,39Z"
+          ></path>
+        </svg>
+        Editar
+      </button>
+      }
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <section class="flex flex-1 overflow-y-auto p-6 space-y-8 items-center">
+      <div
+        class="max-w-3xl mx-auto bg-[#1e293b] border border-gray-700 rounded-xl p-6 space-y-6 w-full"
+      >
+        <!-- vista leer -->
+        <div *ngIf="curso && !modoEdicion" class="space-y-4">
+          <div>
+            <h2 class="text-2xl font-bold text-white">{{ curso.nombre_curso }}</h2>
+            <p class="text-sm text-gray-400">ID: {{ curso.id_curso }}</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <p class="text-xs text-gray-400 uppercase">Institución</p>
+              <p class="text-white font-medium">{{ curso.institucion }}</p>
+
+              <p class="text-xs text-gray-400 uppercase mt-4">Fecha inicio</p>
+              <p class="text-white font-medium">{{ curso.fecha_inicio | date : 'dd/MM/yyyy' }}</p>
+            </div>
+
+            <div>
+              <p class="text-xs text-gray-400 uppercase">Fecha fin</p>
+              <p class="text-white font-medium">{{ curso.fecha_fin | date : 'dd/MM/yyyy' }}</p>
+
+              <p class="text-xs text-gray-400 uppercase mt-4">Usuario</p>
+              <p class="text-white font-medium">{{ usuario?.nombre }}</p>
+            </div>
+          </div>
+
+          <div class="border-t border-gray-700 text-xs text-gray-400 pt-4">
+            <p>Creado: {{ curso.created_at | date : 'dd/MM/yyyy HH:mm' }}</p>
+            <p>Actualizado: {{ curso.updated_at | date : 'dd/MM/yyyy HH:mm' }}</p>
+          </div>
+
+          <div class="pt-4 flex gap-4">
+            <button
+              (click)="eliminarCurso()"
+              class="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="inline-block"
+              >
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path
+                  d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                ></path>
+              </svg>
+              Eliminar Curso
+            </button>
+            <button
+              (click)="volver()"
+              class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg"
+            >
+              Volver
+            </button>
+          </div>
+        </div>
+
+        <!-- formulario edición -->
+        <form *ngIf="curso && modoEdicion" (ngSubmit)="guardarCambios()" class="space-y-4">
+          <div>
+            <label class="block text-sm text-gray-300 mb-1"
+              >Nombre del curso <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              [(ngModel)]="editForm.nombre_curso"
+              name="nombre_curso"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-2 text-white"
+            />
+            <p *ngIf="errores['nombre_curso']" class="text-red-500 text-xs mt-1">
+              {{ errores['nombre_curso'] }}
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-300 mb-1"
+              >Institución <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              [(ngModel)]="editForm.institucion"
+              name="institucion"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-2 text-white"
+            />
+            <p *ngIf="errores['institucion']" class="text-red-500 text-xs mt-1">
+              {{ errores['institucion'] }}
+            </p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm text-gray-300 mb-1"
+                >Fecha inicio <span class="text-red-500">*</span></label
+              >
+              <input
+                type="date"
+                [(ngModel)]="editForm.fecha_inicio"
+                name="fecha_inicio"
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-2 text-white"
+              />
+              <p *ngIf="errores['fecha_inicio']" class="text-red-500 text-xs mt-1">
+                {{ errores['fecha_inicio'] }}
+              </p>
+            </div>
+
+            <div>
+              <label class="block text-sm text-gray-300 mb-1"
+                >Fecha fin <span class="text-red-500">*</span></label
+              >
+              <input
+                type="date"
+                [(ngModel)]="editForm.fecha_fin"
+                name="fecha_fin"
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-2 text-white"
+              />
+              <p *ngIf="errores['fecha_fin']" class="text-red-500 text-xs mt-1">
+                {{ errores['fecha_fin'] }}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex gap-4 mt-4">
+            <button
+              type="button"
+              (click)="cancelarEdicion()"
+              class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              [disabled]="guardando"
+              class="flex-1 bg-[#f97316] hover:bg-[#ea580c] text-white py-3 rounded-lg"
+            >
+              {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
+            </button>
+          </div>
+        </form>
+
+        <!-- carga / no encontrado -->
+        <div *ngIf="!curso && !cargando" class="text-gray-400">Curso no encontrado.</div>
+        <div *ngIf="cargando" class="text-gray-400">Cargando...</div>
+      </div>
+    </section>
+  </main>
+</body>

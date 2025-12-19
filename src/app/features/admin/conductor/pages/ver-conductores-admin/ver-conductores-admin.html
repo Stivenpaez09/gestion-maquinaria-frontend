@@ -1,0 +1,184 @@
+<body class="bg-[#0f172a] text-gray-200 min-h-screen flex w-full overflow-x-hidden">
+  <app-sidebar-admin></app-sidebar-admin>
+
+  <!-- =========================
+       MAIN AREA
+  ========================== -->
+  <main class="flex-1 flex flex-col min-w-0">
+    <!-- =========================
+         HEADER SUPERIOR
+    ========================== -->
+    <header
+      class="h-16 bg-[#1e293b] flex items-center justify-between px-6 py-11 border-b border-gray-800"
+    >
+      <div>
+        <h1 class="text-xl font-bold">Gestión de Conductores</h1>
+        <span class="text-sm text-gray-400">Administración y control de conductores</span>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <button
+          class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-3 px-6 rounded-lg shadow-md transition transform hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2"
+          routerLink="/crear-conductor-admin"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="#ffffff"
+            viewBox="0 0 256 256"
+          >
+            <path
+              d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm52-84a12,12,0,0,1-12,12H140v28a12,12,0,0,1-24,0V140H88a12,12,0,0,1,0-24h28V88a12,12,0,0,1,24,0v28h28A12,12,0,0,1,180,128Z"
+            ></path>
+          </svg>
+          Crear Conductor
+        </button>
+      </div>
+    </header>
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+    ========================== -->
+    <section class="p-6 space-y-8">
+      <!-- BUSCADOR estilo igual a ver-proyectos-admin -->
+      <div class="flex gap-3">
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (keyup.enter)="buscar()"
+          placeholder="Ingresa la licencia..."
+          class="flex-1 bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#f97316] focus:border-transparent transition"
+        />
+        <button
+          (click)="buscar()"
+          class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-3 px-6 rounded-lg flex items-center gap-2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+          Buscar
+        </button>
+      </div>
+
+      <!-- LOADING -->
+      <div *ngIf="cargando" class="flex items-center justify-center h-64">
+        <svg
+          class="w-12 h-12 text-[#f97316] animate-spin"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+          ></path>
+        </svg>
+      </div>
+
+      <!-- TARJETAS -->
+      <ng-container *ngIf="!cargando">
+        <div *ngIf="conductores.length > 0; else noConductores">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+            <div
+              *ngFor="let c of conductores"
+              class="bg-[#1e293b] border border-gray-700 rounded-xl overflow-hidden hover:border-[#f97316] transition-colors duration-300 hover:shadow-lg hover:shadow-[#f97316]/10 min-w-0"
+            >
+              <!-- Card header -->
+              <div
+                class="bg-gradient-to-r from-[#0b1220] to-[#111827] p-6 border-b border-gray-700"
+              >
+                <h3 class="text-lg font-bold text-white truncate">{{ c.licencia }}</h3>
+                <p class="text-sm text-gray-500 mt-1">ID: {{ c.id_conductor }}</p>
+              </div>
+
+              <!-- Card body -->
+              <div class="p-6 space-y-4">
+                <div>
+                  <p class="text-xs text-gray-500 font-semibold mb-1">USUARIO</p>
+                  <p class="text-gray-300 text-sm">ID {{ c.usuario }}</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <p class="text-xs text-gray-500 font-semibold mb-1">VENCIMIENTO</p>
+                    <p class="text-white font-medium">
+                      {{ c.fecha_vencimiento | date : 'dd/MM/yyyy' }}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p class="text-xs text-gray-500 font-semibold mb-1">LICENCIA VENCIDA</p>
+                    <p class="text-white font-medium">{{ c.licencia_vencida ? 'Sí' : 'No' }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="bg-[#0b1220] border-t border-gray-700 px-6 py-4 flex gap-3">
+                <button
+                  (click)="verDetalle(c)"
+                  class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-lg transition-colors text-sm flex items-center justify-center gap-2"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  Ver
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #noConductores>
+          <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-12 text-center">
+            <h3 class="text-xl font-semibold text-white mb-2">No hay conductores</h3>
+            <p class="text-gray-400 mb-6">
+              <span *ngIf="searchTerm"
+                >No se encontraron conductores que coincidan con tu búsqueda</span
+              >
+              <span *ngIf="!searchTerm">Comienza creando tu primer conductor</span>
+            </p>
+            <button
+              routerLink="/crear-conductor-admin"
+              class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-3 px-6 rounded-lg"
+            >
+              Crear Conductor
+            </button>
+          </div>
+        </ng-template>
+      </ng-container>
+    </section>
+  </main>
+</body>

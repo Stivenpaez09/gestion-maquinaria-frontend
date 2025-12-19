@@ -1,0 +1,262 @@
+<body class="bg-[#0f172a] text-gray-200 min-h-screen flex">
+  <app-sidebar-admin></app-sidebar-admin>
+
+  <!-- =========================
+       MAIN AREA
+  ========================== -->
+  <main class="flex-1 flex flex-col">
+    <!-- =========================
+         HEADER SUPERIOR
+    ========================== -->
+    <header
+      class="h-16 bg-[#1e293b] flex items-center justify-between px-6 border-b py-11 border-gray-800"
+    >
+      <div>
+        <h1 class="text-xl font-bold">Agregar Usuarios</h1>
+        <span class="text-sm text-gray-400">Registrar nuevo usuario en el sistema</span>
+      </div>
+    </header>
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+    ========================== -->
+    <section class="p-6 space-y-8">
+      <!-- Contenedor principal -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- ========================= 
+             COLUMNA 1: FOTO
+        ========================== -->
+        <div class="lg:col-span-1">
+          <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 space-y-4">
+            <h3 class="text-lg font-semibold text-white">Foto del Usuario</h3>
+
+            <!-- Área de preview -->
+            <div
+              class="relative h-48 bg-gradient-to-br from-[#0b1220] to-[#111827] rounded-lg flex items-center justify-center overflow-hidden border-2 border-dashed border-gray-600"
+            >
+              @if (fotoPreview) {
+              <img [src]="fotoPreview" alt="Preview" class="w-full h-full object-cover" />
+              } @else {
+              <div class="text-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="48"
+                  height="48"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  class="mx-auto text-gray-500 mb-2"
+                >
+                  <path
+                    d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+                  ></path>
+                  <circle cx="12" cy="13" r="4"></circle>
+                </svg>
+                <p class="text-gray-400 text-sm">Sin foto</p>
+              </div>
+              }
+            </div>
+
+            <!-- Input file (oculto) -->
+            <input
+              type="file"
+              #fotoInput
+              (change)="onFotoSeleccionada($event)"
+              accept="image/jpeg,image/png,image/webp"
+              class="hidden"
+            />
+
+            <!-- Botones -->
+            <div class="flex gap-2">
+              <button
+                (click)="fotoInput.click()"
+                class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
+              >
+                Subir Foto
+              </button>
+
+              @if (fotoPreview) {
+              <button
+                (click)="limpiarFoto()"
+                class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
+              >
+                Limpiar
+              </button>
+              }
+            </div>
+
+            <!-- Info -->
+            <p class="text-xs text-gray-500">
+              Formatos permitidos: JPG, PNG, WebP. Tamaño máximo: 5MB
+            </p>
+            @if (fotoNombre) {
+            <p class="text-xs text-gray-400">📄 {{ fotoNombre }}</p>
+            }
+          </div>
+        </div>
+
+        <!-- ========================= 
+             COLUMNA 2 & 3: FORMULARIO
+        ========================== -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Información Básica -->
+          <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 space-y-4">
+            <h3 class="text-lg font-semibold text-white">Información Básica</h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- ID Usuario (readonly) -->
+              <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2">
+                  ID de Usuario <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  disabled
+                  placeholder="Auto generado"
+                  class="w-full bg-gray-700/30 border border-gray-700 rounded-lg px-4 py-3 text-gray-400 cursor-not-allowed"
+                />
+              </div>
+
+              <!-- Nombre -->
+              <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2">
+                  Nombre <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  [(ngModel)]="formulario.nombre"
+                  placeholder="Ej: Juan Pérez"
+                  [ngClass]="{ 'border-red-500': tieneError('nombre') }"
+                  class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#f97316] focus:border-transparent transition"
+                />
+                @if (tieneError('nombre')) {
+                <p class="text-red-500 text-xs mt-1">{{ obtenerError('nombre') }}</p>
+                }
+              </div>
+
+              <!-- Cargo -->
+              <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2">
+                  Cargo <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  [(ngModel)]="formulario.cargo"
+                  placeholder="Ej: Operador de Maquinaria"
+                  [ngClass]="{ 'border-red-500': tieneError('cargo') }"
+                  class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#f97316] focus:border-transparent transition"
+                />
+                @if (tieneError('cargo')) {
+                <p class="text-red-500 text-xs mt-1">{{ obtenerError('cargo') }}</p>
+                }
+              </div>
+
+              <!-- Email -->
+              <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2">
+                  Correo Electrónico <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  [(ngModel)]="formulario.email"
+                  placeholder="Ej: juan.perez@empresa.com"
+                  [ngClass]="{ 'border-red-500': tieneError('email') }"
+                  class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#f97316] focus:border-transparent transition"
+                />
+                @if (tieneError('email')) {
+                <p class="text-red-500 text-xs mt-1">{{ obtenerError('email') }}</p>
+                }
+              </div>
+
+              <!-- Teléfono -->
+              <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2">
+                  Teléfono <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="tel"
+                  [(ngModel)]="formulario.telefono"
+                  placeholder="Ej: 3001234567"
+                  [ngClass]="{ 'border-red-500': tieneError('telefono') }"
+                  class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#f97316] focus:border-transparent transition"
+                />
+                @if (tieneError('telefono')) {
+                <p class="text-red-500 text-xs mt-1">{{ obtenerError('telefono') }}</p>
+                }
+              </div>
+
+              <!-- Fecha de Ingreso -->
+              <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2">
+                  Fecha de Ingreso <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  [(ngModel)]="formulario.fecha_ingreso"
+                  [ngClass]="{ 'border-red-500': tieneError('fecha_ingreso') }"
+                  class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#f97316] focus:border-transparent transition"
+                />
+                @if (tieneError('fecha_ingreso')) {
+                <p class="text-red-500 text-xs mt-1">{{ obtenerError('fecha_ingreso') }}</p>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Botones de Acción -->
+          <div class="flex gap-4">
+            <button
+              (click)="cancelar()"
+              [disabled]="cargando"
+              class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Cancelar
+            </button>
+
+            <button
+              (click)="crearUsuario()"
+              [disabled]="cargando"
+              class="flex-1 bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              @if (cargando) {
+              <svg
+                class="animate-spin h-5 w-5"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              Creando... } @else {
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                fill="#ffffff"
+                viewBox="0 0 256 256"
+              >
+                <path
+                  d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm52-84a12,12,0,0,1-12,12H140v28a12,12,0,0,1-24,0V140H88a12,12,0,0,1,0-24h28V88a12,12,0,0,1,24,0v28h28A12,12,0,0,1,180,128Z"
+                ></path>
+              </svg>
+              Crear Usuario }
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>

@@ -1,0 +1,256 @@
+<body class="bg-[#0f172a] text-gray-200 min-h-screen flex">
+  <app-sidebar-responsable></app-sidebar-responsable>
+
+  <!-- =========================
+       MAIN AREA
+  ========================== -->
+  <main class="flex-1 flex flex-col">
+    <!-- =========================
+         HEADER SUPERIOR
+    ========================== -->
+    <header
+      class="h-16 bg-[#1e293b] flex items-center justify-between px-6 border-b py-11 border-gray-800"
+    >
+      <div>
+        <h1 class="text-xl font-bold">Detalles de Mantenimiento Programado</h1>
+        <span class="text-sm text-gray-400">Información y gestión completa</span>
+      </div>
+      <button
+        (click)="activarEdicion()"
+        [disabled]="cargando"
+        class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 text-base"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          fill="#ffffff"
+          viewBox="0 0 256 256"
+          class="inline-block"
+        >
+          <path
+            d="M230.15,70.54,185.46,25.86a20,20,0,0,0-28.28,0L33.86,149.17A19.86,19.86,0,0,0,28,163.31V208a20,20,0,0,0,20,20H216a12,12,0,0,0,0-24H125L230.15,98.83A20,20,0,0,0,230.15,70.54ZM91,204H52V165l84-84,39,39ZM192,103,153,64l18.34-18.34,39,39Z"
+          ></path>
+        </svg>
+        Editar
+      </button>
+    </header>
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+    ========================== -->
+    <section class="p-6 flex-1 flex items-center justify-center">
+      @if (cargando) {
+      <div class="flex items-center justify-center">
+        <svg
+          class="animate-spin w-12 h-12 text-[#f97316]"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+          ></path>
+        </svg>
+      </div>
+      } @else if (mantenimiento && !modoEdicion) {
+      <div class="max-w-3xl w-full bg-[#0b1220] border border-gray-700 rounded-2xl p-8 shadow-lg">
+        <div class="mb-6">
+          <h2 class="text-2xl font-bold text-white">{{ mantenimiento.nombre }}</h2>
+          <p class="text-sm text-gray-400">
+            ID: <span class="text-gray-200 font-semibold">#{{ mantenimiento.id_programado }}</span>
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div class="bg-[#111827] p-4 rounded-lg border border-gray-700">
+            <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Tipo</p>
+            <p class="text-white font-semibold mt-1">{{ mantenimiento.tipo | titlecase }}</p>
+          </div>
+
+          <div class="bg-[#111827] p-4 rounded-lg border border-gray-700">
+            <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Intervalo (horas)</p>
+            <p class="text-white font-semibold mt-1">{{ mantenimiento.intervalo_horas }} h</p>
+          </div>
+
+          <div class="md:col-span-2 bg-[#111827] p-4 rounded-lg border border-gray-700">
+            <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Descripción</p>
+            <p class="text-white mt-1">{{ mantenimiento.descripcion || 'Sin descripción' }}</p>
+          </div>
+
+          <div
+            class="md:col-span-2 bg-gradient-to-r from-[#111827] to-[#0b1220] p-4 rounded-lg border border-gray-700 cursor-pointer hover:border-[#f97316]"
+            (click)="router.navigate(['/detalles-maquinaria-responsable', mantenimiento.maquina])"
+          >
+            <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Máquina</p>
+            <p class="text-white font-semibold">
+              {{ maquinaObj ? maquinaObj.nombre_maquina : 'ID ' + mantenimiento.maquina }}
+            </p>
+            @if (maquinaObj) {
+            <p class="text-sm text-gray-400 mt-1">
+              {{ maquinaObj.marca || '' }} · {{ maquinaObj.serie || '' }}
+            </p>
+            }
+            <p class="text-xs text-gray-400 mt-2">Haga clic para ver detalles de la máquina</p>
+          </div>
+        </div>
+
+        <div class="border-t border-gray-700 pt-6 mb-6">
+          <p class="text-xs text-gray-500 mb-1">
+            Creado: {{ mantenimiento.created_at | date : 'dd/MM/yyyy HH:mm' }}
+          </p>
+          <p class="text-xs text-gray-500">
+            Actualizado: {{ mantenimiento.updated_at | date : 'dd/MM/yyyy HH:mm' }}
+          </p>
+        </div>
+
+        <div class="flex gap-4">
+          <button
+            (click)="eliminarMantenimiento()"
+            [disabled]="cargandoOperacion"
+            class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg"
+          >
+            <svg class="w-5 h-5 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+            Eliminar Mantenimiento
+          </button>
+          <button
+            (click)="router.navigate(['/detalles-maquinaria-responsable', mantenimiento.maquina])"
+            class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 rounded-lg"
+          >
+            Volver
+          </button>
+        </div>
+      </div>
+      } @else if (mantenimiento && modoEdicion) {
+      <div class="max-w-3xl w-full bg-[#0b1220] border border-gray-700 rounded-2xl p-8 shadow-lg">
+        <h2 class="text-2xl font-bold text-white mb-2">Editar Mantenimiento</h2>
+        <p class="text-sm text-gray-400 mb-4">ID: #{{ mantenimiento.id_programado }}</p>
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm text-gray-300 mb-2">ID (no editable)</label>
+            <input
+              type="text"
+              [value]="mantenimiento.id_programado"
+              disabled
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-gray-300"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-300 mb-2">Máquina (no editable)</label>
+            <input
+              type="text"
+              [value]="maquinaObj ? maquinaObj.nombre_maquina : 'ID ' + mantenimiento.maquina"
+              disabled
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-gray-300"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-300 mb-2"
+              >Nombre <span class="text-red-500">*</span></label
+            >
+            <input
+              type="text"
+              [(ngModel)]="mantenimientoForm.nombre"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+            />
+            @if (errores['nombre']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['nombre'] }}</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-300 mb-2"
+              >Tipo <span class="text-red-500">*</span></label
+            >
+            <select
+              [(ngModel)]="mantenimientoForm.tipo"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+            >
+              <option value="">-- Seleccionar --</option>
+              <option value="preventivo">Preventivo</option>
+              <option value="predictivo">Predictivo</option>
+            </select>
+            @if (errores['tipo']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['tipo'] }}</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-300 mb-2"
+              >Intervalo (horas) <span class="text-red-500">*</span></label
+            >
+            <input
+              type="number"
+              min="1"
+              step="1"
+              [(ngModel)]="mantenimientoForm.intervalo_horas"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+            />
+            @if (errores['intervalo_horas']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['intervalo_horas'] }}</p>
+            }
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-300 mb-2">Descripción</label>
+            <textarea
+              rows="4"
+              [(ngModel)]="mantenimientoForm.descripcion"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white resize-none"
+            ></textarea>
+            @if (errores['descripcion']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['descripcion'] }}</p>
+            }
+          </div>
+        </div>
+
+        <div class="flex gap-4 mt-6">
+          <button
+            (click)="cancelarEdicion()"
+            class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 rounded-lg"
+          >
+            Cancelar
+          </button>
+          <button
+            (click)="guardarCambios()"
+            [disabled]="cargandoOperacion"
+            class="flex-1 bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-3 rounded-lg"
+          >
+            @if (cargandoOperacion) { Guardando... } @else { Guardar cambios }
+          </button>
+        </div>
+      </div>
+      } @else {
+      <div class="text-center">
+        <p class="text-gray-400">Mantenimiento no encontrado</p>
+        <button
+          routerLink="/ver-maquinarias-responsable"
+          class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-2 px-6 rounded-lg mt-4"
+        >
+          Volver
+        </button>
+      </div>
+      }
+    </section>
+  </main>
+</body>

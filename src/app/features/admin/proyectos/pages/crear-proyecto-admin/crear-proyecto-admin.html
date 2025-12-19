@@ -1,0 +1,211 @@
+<body class="bg-[#0f172a] text-gray-200 min-h-screen flex">
+  <app-sidebar-admin></app-sidebar-admin>
+
+  <!-- =========================
+       MAIN AREA
+  ========================== -->
+  <main class="flex-1 flex flex-col">
+    <!-- =========================
+         HEADER SUPERIOR
+    ========================== -->
+    <header
+      class="h-16 bg-[#1e293b] flex items-center justify-between px-6 border-b py-11 border-gray-800"
+    >
+      <div>
+        <h1 class="text-xl font-bold">Agregar Proyecto</h1>
+        <span class="text-sm text-gray-400">Registrar nuevo proyecto en el sistema</span>
+      </div>
+    </header>
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+    ========================== -->
+    <section class="p-6 flex-1 flex items-center justify-center">
+      <div class="max-w-4xl mx-auto space-y-6 w-full">
+        <!-- Card: Información Básica -->
+        <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 shadow-sm">
+          <h3 class="text-lg font-semibold text-white mb-4">Información Básica</h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Nombre proyecto -->
+            <div>
+              <label class="block text-sm text-gray-300 mb-2"
+                >Nombre del proyecto <span class="text-red-500">*</span></label
+              >
+              <input
+                type="text"
+                name="nombre_proyecto"
+                [(ngModel)]="proyectoForm.nombre_proyecto"
+                placeholder="Ej. Construcción puente A"
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#f97316]"
+              />
+              @if (errores['nombre_proyecto']) {
+              <p class="text-red-500 text-xs mt-2">{{ errores['nombre_proyecto'] }}</p>
+              }
+            </div>
+
+            <!-- Empresa select -->
+            <div>
+              <label class="block text-sm text-gray-300 mb-2">Empresa</label>
+
+              @if (cargandoEmpresas) {
+              <div
+                class="flex items-center gap-3 bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3"
+              >
+                <svg
+                  class="animate-spin h-5 w-5 text-[#f97316]"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  ></circle>
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  ></path>
+                </svg>
+                <span class="text-gray-400 text-sm">Cargando empresas...</span>
+              </div>
+              } @else {
+              <div class="relative">
+                <select
+                  name="empresa"
+                  [(ngModel)]="proyectoForm.empresa"
+                  class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white appearance-none"
+                >
+                  <option [ngValue]="null">-- Sin empresa --</option>
+                  @for (empresa of empresas; track empresa.id_empresa) {
+                  <option [ngValue]="empresa.id_empresa">
+                    {{ empresa.nombre }} — {{ empresa.nit }}
+                  </option>
+                  }
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                  <svg
+                    class="w-4 h-4 text-gray-400"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </div>
+              </div>
+              } @if (errores['empresa']) {
+              <p class="text-red-500 text-xs mt-2">{{ errores['empresa'] }}</p>
+              }
+            </div>
+
+            <!-- Fecha inicio -->
+            <div>
+              <label class="block text-sm text-gray-300 mb-2">Fecha inicio</label>
+              <input
+                type="date"
+                name="fecha_inicio"
+                [(ngModel)]="proyectoForm.fecha_inicio"
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+              />
+              @if (errores['fecha_inicio']) {
+              <p class="text-red-500 text-xs mt-2">{{ errores['fecha_inicio'] }}</p>
+              }
+            </div>
+
+            <!-- Fecha fin -->
+            <div>
+              <label class="block text-sm text-gray-300 mb-2">Fecha fin</label>
+              <input
+                type="date"
+                name="fecha_fin"
+                [(ngModel)]="proyectoForm.fecha_fin"
+                class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white"
+              />
+              @if (errores['fecha_fin']) {
+              <p class="text-red-500 text-xs mt-2">{{ errores['fecha_fin'] }}</p>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Card: Descripción -->
+        <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 shadow-sm">
+          <h3 class="text-lg font-semibold text-white mb-4">Descripción</h3>
+          <textarea
+            name="descripcion"
+            [(ngModel)]="proyectoForm.descripcion"
+            rows="6"
+            placeholder="Descripción breve del proyecto (opcional)"
+            class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white resize-none"
+          ></textarea>
+          @if (errores['descripcion']) {
+          <p class="text-red-500 text-xs mt-2">{{ errores['descripcion'] }}</p>
+          }
+        </div>
+
+        <!-- Acciones grandes estilo -->
+        <div class="flex gap-4 items-center">
+          <button
+            routerLink="/ver-proyectos-admin"
+            class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 rounded-lg transition-colors"
+          >
+            Cancelar
+          </button>
+
+          <button
+            (click)="crearProyecto()"
+            [disabled]="cargando"
+            class="flex-1 bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-3 disabled:opacity-60"
+          >
+            @if (cargando) {
+            <svg
+              class="animate-spin h-5 w-5 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              ></path>
+            </svg>
+            Creando... } @else {
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              fill="#ffffff"
+              viewBox="0 0 256 256"
+            >
+              <path
+                d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm52-84a12,12,0,0,1-12,12H140v28a12,12,0,0,1-24,0V140H88a12,12,0,0,1,0-24h28V88a12,12,0,0,1,24,0v28h28A12,12,0,0,1,180,128Z"
+              ></path>
+            </svg>
+            Crear Proyecto }
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>

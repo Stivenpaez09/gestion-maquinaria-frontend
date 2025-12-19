@@ -1,0 +1,162 @@
+<body class="bg-[#0f172a] text-gray-200 min-h-screen flex w-full overflow-x-hidden">
+  <app-sidebar-admin></app-sidebar-admin>
+
+  <!-- =========================
+       MAIN AREA
+  ========================== -->
+  <main class="flex-1 min-w-0 flex flex-col overflow-y-auto box-border">
+    <!-- =========================
+         HEADER SUPERIOR
+    ========================== -->
+    <header
+      class="h-16 bg-[#1e293b] flex items-center justify-between px-6 py-11 border-b border-gray-800"
+    >
+      <div>
+        <h1 class="text-xl font-bold">Crear Conductor</h1>
+        <p class="text-sm text-gray-400">Registrar un nuevo conductor</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <a
+          routerLink="/admin/conductores"
+          class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg"
+          >Volver</a
+        >
+      </div>
+    </header>
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+    ========================== -->
+    <section class="p-6 space-y-8 flex flex-1 items-center">
+      <div class="max-w-3xl mx-auto min-w-0">
+        <form (ngSubmit)="crearConductor()" class="space-y-6">
+          <div class="bg-[#1e293b] border border-gray-700 rounded-xl p-6 space-y-4 min-w-0">
+            <h2 class="text-lg font-semibold text-white">Información del Conductor</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="min-w-0">
+                <label class="block text-sm text-gray-300 mb-2"
+                  >Usuario <span class="text-red-500">*</span></label
+                >
+                <div class="relative">
+                  <select
+                    [(ngModel)]="form.usuario"
+                    name="usuario"
+                    class="w-full bg-[#0f172a] border border-gray-700 text-white rounded-lg px-4 py-3 pr-10 appearance-none focus:outline-none focus:ring-0 min-w-0"
+                  >
+                    <option [ngValue]="undefined">— Seleccione un usuario —</option>
+                    <option *ngFor="let u of usuarios" [ngValue]="u.id_usuario">
+                      {{ u.nombre }} - {{ u.cargo }}
+                    </option>
+                  </select>
+                  <svg
+                    class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  >
+                    <path d="M6 8l4 4 4-4" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </div>
+                <p *ngIf="errores['usuario']" class="text-red-500 text-xs mt-2">
+                  {{ errores['usuario'] }}
+                </p>
+                <p *ngIf="cargandoUsuarios" class="text-xs text-gray-400 mt-2">
+                  Cargando usuarios...
+                </p>
+              </div>
+
+              <div class="min-w-0">
+                <label class="block text-sm text-gray-300 mb-2"
+                  >Licencia <span class="text-red-500">*</span></label
+                >
+                <input
+                  [(ngModel)]="form.licencia"
+                  name="licencia"
+                  type="text"
+                  placeholder="Ej. ABC123456"
+                  class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none min-w-0"
+                />
+                <p *ngIf="errores['licencia']" class="text-red-500 text-xs mt-2">
+                  {{ errores['licencia'] }}
+                </p>
+              </div>
+
+              <div class="min-w-0">
+                <label class="block text-sm text-gray-300 mb-2"
+                  >Fecha de vencimiento <span class="text-red-500">*</span></label
+                >
+                <input
+                  [(ngModel)]="form.fecha_vencimiento"
+                  name="fecha_vencimiento"
+                  type="date"
+                  class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none min-w-0"
+                />
+                <p *ngIf="errores['fecha_vencimiento']" class="text-red-500 text-xs mt-2">
+                  {{ errores['fecha_vencimiento'] }}
+                </p>
+              </div>
+
+              <div class="min-w-0 flex items-center gap-3">
+                <div class="flex items-center">
+                  <input
+                    [(ngModel)]="form.licencia_vencida"
+                    name="licencia_vencida"
+                    type="checkbox"
+                    id="licencia_vencida"
+                    class="h-4 w-4 rounded bg-[#0f172a] border-gray-600 text-[#f97316]"
+                  />
+                  <label for="licencia_vencida" class="ml-2 text-sm text-gray-300"
+                    >Licencia vencida</label
+                  >
+                </div>
+                <p *ngIf="errores['licencia_vencida']" class="text-red-500 text-xs mt-2">
+                  {{ errores['licencia_vencida'] }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between gap-4 max-w-3xl mx-auto">
+            <button
+              type="button"
+              routerLink="/ver-conductores-admin"
+              (click)="
+                form = {
+                  usuario: undefined,
+                  licencia: '',
+                  fecha_vencimiento: '',
+                  licencia_vencida: false
+                }
+              "
+              class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg"
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="submit"
+              [disabled]="creando"
+              class="flex-1 bg-[#f97316] hover:bg-[#ea580c] text-white py-3 rounded-lg"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                fill="#ffffff"
+                viewBox="0 0 256 256"
+                class="inline-block"
+              >
+                <path
+                  d="M128,20A108,108,0,1,0,236,128,108.12,108.12,0,0,0,128,20Zm0,192a84,84,0,1,1,84-84A84.09,84.09,0,0,1,128,212Zm52-84a12,12,0,0,1-12,12H140v28a12,12,0,0,1-24,0V140H88a12,12,0,0,1,0-24h28V88a12,12,0,0,1,24,0v28h28A12,12,0,0,1,180,128Z"
+                ></path>
+              </svg>
+              {{ creando ? 'Creando...' : 'Crear Conductor' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+</body>

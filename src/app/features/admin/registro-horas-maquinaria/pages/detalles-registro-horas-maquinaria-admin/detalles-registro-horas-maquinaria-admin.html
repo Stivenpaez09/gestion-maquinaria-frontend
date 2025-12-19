@@ -1,0 +1,399 @@
+<body class="bg-[#0f172a] text-gray-200 min-h-screen flex">
+  <app-sidebar-admin></app-sidebar-admin>
+
+  <!-- =========================
+       MAIN AREA
+  ========================== -->
+  <main class="flex-1 flex flex-col">
+    <!-- =========================
+         HEADER SUPERIOR
+    ========================== -->
+    <header
+      class="h-16 bg-[#1e293b] flex items-center justify-between px-6 border-b py-11 border-gray-800"
+    >
+      <div>
+        <h1 class="text-xl font-bold">Detalles de Registro de Horas</h1>
+        <span class="text-sm text-gray-400">Información y gestión completa</span>
+      </div>
+      @if (registro && !modoEdicion) {
+      <button
+        (click)="activarEdicion()"
+        [disabled]="cargando"
+        class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 text-base"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          fill="#ffffff"
+          viewBox="0 0 256 256"
+          class="inline-block mr-2"
+        >
+          <path
+            d="M230.15,70.54,185.46,25.86a20,20,0,0,0-28.28,0L33.86,149.17A19.86,19.86,0,0,0,28,163.31V208a20,20,0,0,0,20,20H216a12,12,0,0,0,0-24H125L230.15,98.83A20,20,0,0,0,230.15,70.54ZM91,204H52V165l84-84,39,39ZM192,103,153,64l18.34-18.34,39,39Z"
+          ></path>
+        </svg>
+        Editar
+      </button>
+      }
+    </header>
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+    ========================== -->
+    <section class="p-6 flex-1 flex items-center justify-center">
+      @if (cargando) {
+      <div class="flex items-center justify-center">
+        <svg
+          class="animate-spin w-12 h-12 text-[#f97316]"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+          ></path>
+        </svg>
+      </div>
+      } @else if (registro && !modoEdicion) {
+      <!-- Vista detalles -->
+      <div class="bg-[#1e293b] border border-gray-700 rounded-2xl p-8 max-w-4xl w-full shadow-lg">
+        <!-- Título y ID -->
+        <div class="mb-6">
+          <h2 class="text-3xl font-bold text-white mb-2">Registro de Horas de Maquinaria</h2>
+          <div class="flex items-center gap-4 text-gray-400">
+            <span
+              >ID: <span class="text-gray-300 font-semibold">{{ registro.id_registro }}</span></span
+            >
+          </div>
+        </div>
+
+        <!-- Grid información principal -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <!-- Máquina (clickeable) -->
+          <div
+            (click)="irADetallesMaquinaria(registro.maquina)"
+            class="bg-gradient-to-r from-[#111827] to-[#0b1220] border border-gray-700 rounded-xl p-6 cursor-pointer hover:border-[#f97316] transition-all duration-200"
+          >
+            <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Máquina</p>
+            @if (maquinariaObj) {
+            <h3 class="text-xl font-bold text-white mb-1">{{ maquinariaObj.nombre_maquina }}</h3>
+            <p class="text-sm text-[#f97316]">ID: {{ maquinariaObj.id_maquina }}</p>
+            <p class="text-xs text-gray-400 mt-2">Haz clic para ver detalles</p>
+            } @else {
+            <p class="text-white">Cargando...</p>
+            }
+          </div>
+
+          <!-- Proyecto (clickeable si existe) -->
+          @if (registro.proyecto) {
+          <div
+            (click)="irADetallesProyecto(registro.proyecto!)"
+            class="bg-gradient-to-r from-[#111827] to-[#0b1220] border border-gray-700 rounded-xl p-6 cursor-pointer hover:border-[#f97316] transition-all duration-200"
+          >
+            <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Proyecto</p>
+            @if (proyectoObj) {
+            <h3 class="text-xl font-bold text-white mb-1">{{ proyectoObj.nombre_proyecto }}</h3>
+            <p class="text-sm text-[#f97316]">ID: {{ proyectoObj.id_proyecto }}</p>
+            <p class="text-xs text-gray-400 mt-2">Haz clic para ver detalles</p>
+            } @else {
+            <p class="text-white">Cargando...</p>
+            }
+          </div>
+          } @else {
+          <div
+            class="bg-gradient-to-r from-[#111827] to-[#0b1220] border border-gray-700 rounded-xl p-6"
+          >
+            <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Proyecto</p>
+            <p class="text-white">Sin proyecto asignado</p>
+          </div>
+          }
+
+          <!-- Usuario (clickeable si existe) -->
+          @if (registro.usuario) {
+          <div
+            (click)="irADetallesUsuario(registro.usuario!)"
+            class="bg-gradient-to-r from-[#111827] to-[#0b1220] border border-gray-700 rounded-xl p-6 cursor-pointer hover:border-[#f97316] transition-all duration-200"
+          >
+            <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Usuario</p>
+            @if (usuarioObj) {
+            <h3 class="text-xl font-bold text-white mb-1">{{ usuarioObj.nombre }}</h3>
+            <p class="text-sm text-[#f97316]">{{ usuarioObj.cargo }}</p>
+            <p class="text-xs text-gray-400 mt-2">Haz clic para ver detalles</p>
+            } @else {
+            <p class="text-white">Cargando...</p>
+            }
+          </div>
+          } @else {
+          <div
+            class="bg-gradient-to-r from-[#111827] to-[#0b1220] border border-gray-700 rounded-xl p-6"
+          >
+            <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Usuario</p>
+            <p class="text-white">Sin usuario asignado</p>
+          </div>
+          }
+
+          <!-- Información del Registro -->
+          <div class="bg-[#111827] border border-gray-700 rounded-xl p-6">
+            <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Fecha</p>
+            <p class="text-white font-semibold">{{ formatearFecha(registro.fecha) }}</p>
+          </div>
+
+          <div class="bg-[#111827] border border-gray-700 rounded-xl p-6">
+            <p class="text-xs text-gray-500 font-semibold uppercase mb-2">Horas Trabajadas</p>
+            <p class="text-white font-semibold">{{ registro.horas_trabajadas }} h</p>
+          </div>
+        </div>
+
+        <!-- Observaciones -->
+        @if (registro.observaciones) {
+        <div class="mb-8">
+          <p class="text-xs text-gray-500 font-semibold uppercase mb-3">Observaciones</p>
+          <p class="text-gray-300 leading-relaxed">{{ registro.observaciones }}</p>
+        </div>
+        }
+
+        <!-- Fotos -->
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold text-white mb-4">Evidencias Fotográficas</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            @if (registro.foto_planilla) {
+            <div class="bg-[#111827] border border-gray-700 rounded-xl overflow-hidden">
+              <p class="text-xs text-gray-500 font-semibold uppercase p-3 border-b border-gray-700">
+                Foto Planilla
+              </p>
+              <img
+                [src]="obtenerFotoUrl(registro.foto_planilla)"
+                alt="Foto Planilla"
+                class="w-full h-48 object-cover"
+                onError="this.src='assets/images/placeholder.jpg'"
+              />
+            </div>
+            } @if (registro.foto_horometro_inicial) {
+            <div class="bg-[#111827] border border-gray-700 rounded-xl overflow-hidden">
+              <p class="text-xs text-gray-500 font-semibold uppercase p-3 border-b border-gray-700">
+                Horómetro Inicial
+              </p>
+              <img
+                [src]="obtenerFotoUrl(registro.foto_horometro_inicial)"
+                alt="Horómetro Inicial"
+                class="w-full h-48 object-cover"
+                onError="this.src='assets/images/placeholder.jpg'"
+              />
+            </div>
+            } @if (registro.foto_horometro_final) {
+            <div class="bg-[#111827] border border-gray-700 rounded-xl overflow-hidden">
+              <p class="text-xs text-gray-500 font-semibold uppercase p-3 border-b border-gray-700">
+                Horómetro Final
+              </p>
+              <img
+                [src]="obtenerFotoUrl(registro.foto_horometro_final)"
+                alt="Horómetro Final"
+                class="w-full h-48 object-cover"
+                onError="this.src='assets/images/placeholder.jpg'"
+              />
+            </div>
+            } @if (!registro.foto_planilla && !registro.foto_horometro_inicial &&
+            !registro.foto_horometro_final) {
+            <div class="col-span-3 text-center py-8">
+              <p class="text-gray-400">No hay fotos disponibles</p>
+            </div>
+            }
+          </div>
+        </div>
+
+        <!-- Timestamps -->
+        <div class="border-t border-gray-700 pt-6 mb-6">
+          <p class="text-xs text-gray-500 mb-2">
+            Creado: {{ registro.created_at | date : 'dd/MM/yyyy HH:mm' }}
+          </p>
+          <p class="text-xs text-gray-500">
+            Actualizado: {{ registro.updated_at | date : 'dd/MM/yyyy HH:mm' }}
+          </p>
+        </div>
+
+        <!-- Botones -->
+        <div class="flex gap-4">
+          <button
+            (click)="eliminarRegistro()"
+            [disabled]="cargandoEliminacion"
+            class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            @if (cargandoEliminacion) {
+            <svg
+              class="animate-spin h-5 w-5"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              ></path>
+            </svg>
+            Eliminando... } @else {
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              class="inline-block"
+            >
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path
+                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+              ></path>
+            </svg>
+            Eliminar Registro }
+          </button>
+          <button
+            routerLink="/ver-registros-horas-maquinaria-admin"
+            class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-all"
+          >
+            Volver
+          </button>
+        </div>
+      </div>
+      } @else if (registro && modoEdicion) {
+      <!-- Vista edición -->
+      <div class="bg-[#1e293b] border border-gray-700 rounded-2xl p-8 max-w-3xl w-full shadow-lg">
+        <h2 class="text-2xl font-bold text-white mb-1">Editar Registro</h2>
+        <p class="text-sm text-gray-400 mb-6">ID: #{{ registro.id_registro }}</p>
+
+        <div class="space-y-4">
+          <!-- Fecha -->
+          <div>
+            <label class="block text-sm text-gray-300 mb-2"
+              >Fecha <span class="text-red-500">*</span></label
+            >
+            <input
+              type="date"
+              [(ngModel)]="registroForm.fecha"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#f97316]"
+            />
+            @if (errores['fecha']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['fecha'] }}</p>
+            }
+          </div>
+
+          <!-- Observaciones -->
+          <div>
+            <label class="block text-sm text-gray-300 mb-2">Observaciones</label>
+            <textarea
+              rows="5"
+              [(ngModel)]="registroForm.observaciones"
+              maxlength="2000"
+              placeholder="Ingrese observaciones (máximo 2000 caracteres)"
+              class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-3 text-white resize-none focus:outline-none focus:ring-2 focus:ring-[#f97316]"
+            ></textarea>
+            <p class="text-xs text-gray-500 mt-1">
+              {{ (registroForm.observaciones || '').length }}/2000 caracteres
+            </p>
+            @if (errores['observaciones']) {
+            <p class="text-red-500 text-xs mt-1">{{ errores['observaciones'] }}</p>
+            }
+          </div>
+
+          <!-- Información no editable -->
+          <div class="bg-[#111827] border border-gray-700 rounded-lg p-4 space-y-2">
+            <p class="text-xs text-gray-500 font-semibold uppercase mb-2">
+              Información no editable
+            </p>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p class="text-gray-400">Máquina:</p>
+                <p class="text-white">{{ maquinariaObj?.nombre_maquina || 'N/A' }}</p>
+              </div>
+              <div>
+                <p class="text-gray-400">Horas Trabajadas:</p>
+                <p class="text-white">{{ registro.horas_trabajadas }} h</p>
+              </div>
+              @if (proyectoObj) {
+              <div>
+                <p class="text-gray-400">Proyecto:</p>
+                <p class="text-white">{{ proyectoObj.nombre_proyecto }}</p>
+              </div>
+              } @if (usuarioObj) {
+              <div>
+                <p class="text-gray-400">Usuario:</p>
+                <p class="text-white">{{ usuarioObj.nombre }}</p>
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="flex gap-4 mt-6">
+          <button
+            (click)="cancelarEdicion()"
+            class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 rounded-lg"
+          >
+            Cancelar
+          </button>
+          <button
+            (click)="guardarCambios()"
+            [disabled]="cargandoOperacion"
+            class="flex-1 bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-3 rounded-lg flex items-center justify-center gap-2 disabled:opacity-60"
+          >
+            @if (cargandoOperacion) {
+            <svg
+              class="animate-spin h-5 w-5"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              ></path>
+            </svg>
+            Guardando... } @else { Guardar cambios }
+          </button>
+        </div>
+      </div>
+      } @else {
+      <div class="text-center">
+        <p class="text-gray-400 mb-4">Registro no encontrado</p>
+        <button
+          routerLink="/ver-registros-horas-maquinaria-admin"
+          class="bg-[#f97316] hover:bg-[#ea580c] text-white font-semibold py-2 px-6 rounded-lg"
+        >
+          Volver a registros
+        </button>
+      </div>
+      }
+    </section>
+  </main>
+</body>
